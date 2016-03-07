@@ -461,9 +461,9 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       date: defaultDate ? defaultDate[3] : new Date().getDate(),
 
       //Callbacks
-      // eventClick: eventClick,
-      // eventAfterAllRender: createAdjustCalendarHeightFunction(calendarEl),
-      // eventRender: setEventTitle,
+      eventClick: eventClick,
+      eventAfterAllRender: createAdjustCalendarHeightFunction(calendarEl),
+      eventRender: setEventTitle,
       viewRender: (controllerCalendar) ? viewRenderHandler : undefined,
 
       //Called by "fullCalendar( 'refetchEvents' )"
