@@ -24,6 +24,7 @@
   "dependencies": {
     "x-div": "~1.0.2",
     "fullcalendar": "~2.6.1",
-    "jquery-throttle-debounce": "*"
+    "jquery-throttle-debounce": "*",
+    "bootstrap": "~3.3.6"
   }
 }
