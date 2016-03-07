@@ -1,12 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
+
 <head>
-  <meta charset="UTF-8">
+  <meta charset='UTF-8'>
   <title>Multi-calendar demo</title>
 </head>
+
 <body>
 
-  <script src="/mutli-calendar.min.js"></script>
+  <div class='multi-calendar'></div>
 
+  <!-- Dependencies -->
+  <script src="/bower_components/moment/moment.js"></script>
+  <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="/bower_components/jquery.cookie/jquery.cookie.js"></script>
+  <script src="/bower_components/fullcalendar/dist/fullcalendar.min.js"></script>
+
+  <!-- module -->
+  <script src='/src/multi-calendar.js'></script>
+
+  <!-- module initialisation -->
+  <script>
+    // //Callbacks
+    function dayHeaderClick(date, uid, e, view) {
+      console.log('Day header click.');
+    }
+
+    function eventClick(event, jsEvent, view, clickType) {
+      console.log('Event click.');
+    }
+
+    function titleClick(uid) {
+      console.log('Title click.');
+    }
+
+    //Target element
+    var calendarTarget = document.querySelector('.multi-calendar');
+
+    var calendarConfiguration = {
+      loadUrl: 'http://djdhive.dev/?page=calendar&action=loadEvents',
+      calendars: [{
+        name: 'Karl Marx',
+        uid: '12345',
+        description: 'Software Developer', //optional
+        titleClick: titleClick, //optional
+        dayHeaderClick: dayHeaderClick,
+        eventClick: eventClick,
+      }, {
+        name: 'Friedrich Hegel',
+        uid: '7899',
+        description: 'HR Manager', //optional
+        titleClick: titleClick, //optional
+        dayHeaderClick: dayHeaderClick,
+        eventClick: eventClick,
+      }, {
+        name: 'Immanuel Kant',
+        uid: '23456',
+        description: 'Research and Revelopement', //optional
+        titleClick: titleClick, //optional
+        dayHeaderClick: dayHeaderClick,
+        eventClick: eventClick,
+      }, ],
+    };
+
+    //Init
+    var djdCalendar = new DJDCalendar(calendarTarget, calendarConfiguration);
+  </script>
 </body>
+
 </html>

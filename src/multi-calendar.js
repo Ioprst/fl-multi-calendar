@@ -80,6 +80,10 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
             end: moment(end).format('X'),
           },
           success: function (data) {
+            if (status > 299) {
+              reject();
+            }
+
             $('#loading').hide();
             if (data === null) {
               alert('Error fetching events. Please refresh.');
@@ -246,6 +250,11 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
     }));
   };
 
+  /**
+   * [setWeekPickerDate description]
+   * @param {Date} newDate
+   * @return {Boolean} whether the date was changed or not.
+   */
   function setWeekPickerDate(newDate) {
     var $weekpicker = $('#calendar-week');
     var oldDateStr = $weekpicker.val();
@@ -256,9 +265,15 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       format = 'DD/MM/YYYY';
     }
 
-    //Update it with the new one
+    //Update it with the new one if different
+    var dateChanged = false;
     var newDateStr = moment(newDate).format(format);
-    $weekpicker.val(newDateStr);
+    if ($weekpicker.val() !== newDateStr) {
+      $weekpicker.val(newDateStr);
+      dateChanged = true;
+    }
+
+    return dateChanged;
   }
 
   function setURLDate(date) {
@@ -281,12 +296,11 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
    * @param {Date} date
    */
   function setStartDate(date) {
-    //TODO: this line should be in a 'calendarReloaded' event.
-    // Popover.destroy();
-
-    setWeekPickerDate(date);
-    setAllCalendarsDate(date);
-    setURLDate(date);
+    var differentDate = setWeekPickerDate(date);
+    if (differentDate) {
+      setAllCalendarsDate(date);
+      setURLDate(date);
+    }
   }
 
   // ===============================
@@ -447,9 +461,9 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       date: defaultDate ? defaultDate[3] : new Date().getDate(),
 
       //Callbacks
-      eventClick: eventClick,
-      eventAfterAllRender: createAdjustCalendarHeightFunction(calendarEl),
-      eventRender: setEventTitle,
+      // eventClick: eventClick,
+      // eventAfterAllRender: createAdjustCalendarHeightFunction(calendarEl),
+      // eventRender: setEventTitle,
       viewRender: (controllerCalendar) ? viewRenderHandler : undefined,
 
       //Called by "fullCalendar( 'refetchEvents' )"
@@ -755,8 +769,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
     var calendarEls = createCalendarsHTML(targetEl, config.calendars);
 
     if (!calendarEls) {
-      console.error('Error creating calendars.');
-      return;
+      throw new Error('Error creating calendars.');
     }
 
     createReloadFunction(calendarEls);
