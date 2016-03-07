@@ -11,7 +11,11 @@ module.exports = function (grunt) {
     //Make the task asynchronous
     var done = this.async();
 
-    //Start server
+    //Start API server on port 5000;
+    var demoServer = require('../demo/demo-server');
+    demoServer.start();
+
+    //Start HTML server
     var childProcess = require('child_process');
     var spawn = childProcess.spawn;
     var server = spawn('httpserver', [PORT]);
@@ -37,11 +41,13 @@ module.exports = function (grunt) {
 
     process.on('uncaughtException', function () {
       server.kill('SIGTERM');
+      demoServer.stop();
       done(exitCode);
     });
 
     process.on('SIGTERM', function () {
       server.kill('SIGTERM');
+      demoServer.stop();
       done(exitCode);
     });
   });
