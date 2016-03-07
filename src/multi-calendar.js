@@ -1,4 +1,4 @@
-/*globals moment, alert*/
+/*globals moment, Headers */
 
 //NOTE: Refactoring plan of action:
 // - Make as many functions as possible use nothing but their own parameters (DONE)
@@ -39,16 +39,16 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
     }
 
     /**
-    * @method load: loads calendar events from server from start date to end
-    *         	 date and returns a promise which will be resolved with the data
-    * 							from the server.
-    * @param  {Date}   start          [optional]
-    * @param  {Date}   end            [optional]
-    * @param  {boolean}   forceReload
-    * @return {Promise}               The promise will be resolved with
-    *                                     the data that was loaded or
-    *                                     will be rejected.
-    */
+     * @method load: loads calendar events from server from start date to end
+     *         	 date and returns a promise which will be resolved with the data
+     * 							from the server.
+     * @param  {Date}   start          [optional]
+     * @param  {Date}   end            [optional]
+     * @param  {boolean}   forceReload
+     * @return {Promise}               The promise will be resolved with
+     *                                     the data that was loaded or
+     *                                     will be rejected.
+     */
     function load(start, end) {
       if (!initialised || (!start && !lastStartDate)) {
         return Promise.reject();
@@ -68,50 +68,52 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       $('#loading').show();
       isFetching = true;
 
-      lastPromise = new Promise(function (resolve, reject) {
-        $.ajax({
-          type: 'post',
-          url: loadURL,
-          dataType: 'json',
-          cache: false,
-          data: {
-            uid: uids,
-            start: moment(start).format('X'),
-            end: moment(end).format('X'),
-          },
-          success: function (data) {
-            if (status > 299) {
-              reject();
-            }
+      var requestConfig = {
+        method: 'POST',
+        cache: 'no-cache',
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        }),
+        body: {
+          uid: uids,
+          start: moment(start).format('X'),
+          end: moment(end).format('X'),
+        },
+      };
 
-            $('#loading').hide();
-            if (data === null) {
-              alert('Error fetching events. Please refresh.');
-              reject(false);
-              return;
-            }
+      lastPromise = fetch(loadURL, requestConfig)
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (data) {
+          $('#loading').hide();
+          if (data === null) {
+            alert('Error fetching events. Please refresh.');
+            return null;
+          }
 
-            //Set the new presets
-            lastStartDate = start;
-            lastEndDate = end;
-            isFetching = false;
-            resolve(data);
-          },
+          //Set the new presets
+          lastStartDate = start;
+          lastEndDate = end;
+          isFetching = false;
+          return data;
+        })
+        .catch(function (err) {
+          return err;
         });
-      });
 
       return lastPromise;
     }
 
     /**
-    * Immediately returns events in cache and triggers a reload of data from
-    * the server. If there is nothing in the cache then it returns a promise
-    * from load(), which will only be fulfilled when the server answer.
-    * @function getEvents
-    * @param  {Date} start
-    * @param  {Date} end
-    * @return {Promise}       A promise that will be resolved with the server data.
-    */
+     * Immediately returns events in cache and triggers a reload of data from
+     * the server. If there is nothing in the cache then it returns a promise
+     * from load(), which will only be fulfilled when the server answer.
+     * @function getEvents
+     * @param  {Date} start
+     * @param  {Date} end
+     * @return {Promise}       A promise that will be resolved with the server data.
+     */
     function getEvents(start, end) {
       var returnObj;
 
@@ -122,7 +124,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       var isInCache;
       if (lastStartDate && lastEndDate) {
         isInCache = (lastStartDate.valueOf() === start.valueOf() &&
-            lastEndDate.valueOf() === end.valueOf());
+          lastEndDate.valueOf() === end.valueOf());
       }
 
       if (isInCache) {
@@ -145,13 +147,14 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
   }());
 
   /**
-  * @method autoReload : Calls reload() every couple seconds.
-  * @param  {boolean}   activate    Turn autoreload on or off.
-  * @return {void}
-  */
+   * @method autoReload : Calls reload() every couple seconds.
+   * @param  {boolean}   activate    Turn autoreload on or off.
+   * @return {void}
+   */
   var autoReload = (function () {
     //Private variables
     var timer;
+
     function autoReloader() {
       _this.reload();
     }
@@ -176,7 +179,10 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
    * @return {HTMLElement}            The new element or null.
    */
   function replaceByEmptyCopy(el, newTagName) {
-    if (!el || !el.parentNode) return null;
+    if (!el || !el.parentNode) {
+      return null;
+    }
+
     var newEl = document.createElement(newTagName || el.tagName);
     var elAttributes = el.attributes;
     var attrName;
@@ -450,8 +456,12 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       editable: false,
       droppable: false,
       firstDay: 1,
-      titleFormat: { week: 'MMMM d[, yyyy] \'&ndash;\'[ MMMM] d, yyyy' },
-      columnFormat: { week: 'ddd, MMM d' },
+      titleFormat: {
+        week: 'MMMM d[, yyyy]{ \'&ndash;\'[ MMMM] d, yyyy'
+      },
+      columnFormat: {
+        week: 'ddd, MMM d'
+      },
       year: defaultDate ? defaultDate[1] : new Date().getFullYear(),
       month: defaultDate ? defaultDate[2] - 1 : new Date().getMonth(),
       date: defaultDate ? defaultDate[3] : new Date().getDate(),
@@ -535,7 +545,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
   function callbackCreator(callback, calendarEl, parameters) {
 
     if (typeof callback !== 'function' || !calendarEl ||
-        !Array.isArray(parameters)) {
+      !Array.isArray(parameters)) {
       return undefined;
     }
 
@@ -781,7 +791,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
    * @return {void}
    */
   function createReloadFunction(calendarEls) {
-    _this.reload =  function () {
+    _this.reload = function () {
       eventLoader.load().then(function () {
         for (var i = 0; i < calendarEls.length; i++) {
           $(calendarEls[i]).fullCalendar('refetchEvents');

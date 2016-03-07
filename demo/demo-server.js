@@ -9,9 +9,10 @@ module.exports = (function demoServer() {
 
   //We need a function which handles requests and send response
   function handleRequest(request, response) {
-    var content = fs.readFileSync('demo/demoContent.json');
+    var content = fs.readFileSync('demo/demo-content.json');
     response.setHeader('Access-Control-Allow-Origin', '*');
     response.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    response.setHeader('Content-Type', 'application/json');
     response.end(content);
   }
 
