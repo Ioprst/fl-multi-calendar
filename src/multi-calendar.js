@@ -240,7 +240,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
    */
   var setupStickyHeader = function () {
     var $visible = $('.box-title');
-    var $header = $('.fc-header:eq(0)');
+    var $header = $('.fc-toolbar');
     var width = $header.innerWidth();
 
     window.addEventListener('scroll', $.throttle(100, function () {
@@ -356,7 +356,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
 
     //The standard eventTitleEl is a <span> element. Let's substitute it
     //for a <div> with the title content we want.
-    var eventTitleEl = el.querySelector('.fc-event-title');
+    var eventTitleEl = el.querySelector('.fc-title');
     var newEventTitleEl = replaceByEmptyCopy(eventTitleEl, 'div');
     newEventTitleEl.innerHTML = event.title;
 
@@ -399,7 +399,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
 
         //Calculate the appropriate height
         var minimumBottomPadding = 80;
-        var eventElement = calendarEl.querySelector('.fc-day-content');
+        var eventElement = calendarEl.querySelector('.fc-event-container');
         var eventElementHeight = eventElement.clientHeight;
         var calculatedHeight = eventElementHeight + minimumBottomPadding;
         var height = Math.max(calculatedHeight, 120);
@@ -410,7 +410,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
         //The previous line renders this one unnecessary. When the screen width
         //is small, the titles should not have the same height as the calendars.
         // deduct margins for left col
-        // $(calendarEl).parent().prev().css('height', height);
+        $(calendarEl).parent().prev().css('height', height);
       };
     }());
   }
@@ -455,11 +455,12 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       weekends: $.cookie('show-weekends') === 'true',
       header: (controllerCalendar) ? controlBtns : false,
       defaultView: 'basicWeek',
+      contentHeight: 120,
       editable: false,
       droppable: false,
       firstDay: 1,
       titleFormat: {
-        week: 'MMMM d[, yyyy]{ \'&ndash;\'[ MMMM] d, yyyy'
+        week: 'MMM D YYYY'
       },
       columnFormat: {
         week: 'ddd, MMM d'
@@ -470,12 +471,12 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
 
       //Callbacks
       eventClick: eventClick,
-      eventAfterAllRender: createAdjustCalendarHeightFunction(calendarEl),
+      // eventAfterAllRender: createAdjustCalendarHeightFunction(calendarEl),
       eventRender: setEventTitle,
       viewRender: (controllerCalendar) ? viewRenderHandler : undefined,
 
       //Called by "fullCalendar( 'refetchEvents' )"
-      events: function (start, end, callback) {
+      events: function (start, end, timezone, callback) {
         loadServerDataIntoCalendar(start, end, uid, callback);
       }
     });
@@ -599,7 +600,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       _this.reload();
     });
 
-    calendarEl.querySelector('.fc-header-left').appendChild(refreshBtn);
+    calendarEl.querySelector('.fc-left').appendChild(refreshBtn);
 
     // Create 'Show/Hide Weekends' button
     var toggleWeekendBtn = document.createElement('span');
@@ -615,7 +616,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       toggleWeekend();
     });
 
-    calendarEl.querySelector('.fc-header-right').appendChild(toggleWeekendBtn);
+    calendarEl.querySelector('.fc-right').appendChild(toggleWeekendBtn);
   }
 
   /**
