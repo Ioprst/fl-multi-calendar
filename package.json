@@ -1,0 +1,34 @@
+{
+  "name": "fl-multi-calendar",
+  "version": "0.0.1",
+  "description": "Visualise multiple people's calendars",
+  "main": "dist/calendar.js",
+  "scripts": {
+    "test": "grunt test",
+    "build": "grunt build",
+    "demo": "grunt demo"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fourlabsldn/fl-multi-calendar.git"
+  },
+  "keywords": [
+    "fullCalendar",
+    "calendar",
+    "four",
+    "labs"
+  ],
+  "author": "lazamar @ FourLabs",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fourlabsldn/fl-multi-calendar/issues"
+  },
+  "homepage": "https://github.com/fourlabsldn/fl-multi-calendar#readme",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-jasmine": "^1.0.0",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-contrib-uglify": "^1.0.0",
+    "jasmine-core": "^2.4.1"
+  }
+}

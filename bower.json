@@ -1,0 +1,27 @@
+{
+  "name": "fl-multi-calendar",
+  "description": "Visualise multiple people's calendars",
+  "main": "dist/calendar.js",
+  "authors": [
+    "lazamar @ FourLabs"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "fullCalendar",
+    "calendar",
+    "four",
+    "labs"
+  ],
+  "homepage": "https://github.com/fourlabsldn/fl-multi-calendar",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "x-div": "~1.0.2"
+  }
+}
