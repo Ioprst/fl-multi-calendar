@@ -29,6 +29,7 @@
     "grunt-contrib-jasmine": "^1.0.0",
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-contrib-uglify": "^1.0.0",
-    "jasmine-core": "^2.4.1"
+    "jasmine-core": "^2.4.1",
+    "open": "0.0.5"
   }
 }
