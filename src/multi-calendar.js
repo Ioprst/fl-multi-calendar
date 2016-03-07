@@ -372,50 +372,6 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
   }
 
   /**
-   * Creates a function that will take care of adjusting the height of a
-   * specific calendar element.
-   * @function createAdjustCalendarHeightFunction
-   * @param  {HTMLElement} calendarEl         Element to which a fullCalendar
-   *                                          	object has been assigned
-   * @return {function} adjustCalendarHeight  A function that will take care of
-   *                                          	adjusting the calendar
-   *                                          	element's height
-   */
-  function createAdjustCalendarHeightFunction(calendarEl) {
-    return (function () {
-      //Private variables
-      var blockNextExecution = false;
-
-      //Real function
-      return function adjustCalendarHeight() {
-        //NOTE: this function is called by fullCalendar's eventAfterAllRender
-        //but it also triggers a re-rendering, thus triggering
-        //eventAfterAllRender and then another call to itself. To avoid an
-        //infinite loop it will only be executed every other time it is called.
-        blockNextExecution = !blockNextExecution;
-        if (!blockNextExecution) {
-          return;
-        }
-
-        //Calculate the appropriate height
-        var minimumBottomPadding = 80;
-        var eventElement = calendarEl.querySelector('.fc-event-container');
-        var eventElementHeight = eventElement.clientHeight;
-        var calculatedHeight = eventElementHeight + minimumBottomPadding;
-        var height = Math.max(calculatedHeight, 120);
-
-        //Set the height
-        $(calendarEl).fullCalendar('option', 'contentHeight', height);
-
-        //The previous line renders this one unnecessary. When the screen width
-        //is small, the titles should not have the same height as the calendars.
-        // deduct margins for left col
-        $(calendarEl).parent().prev().css('height', height);
-      };
-    }());
-  }
-
-  /**
    * Set weekpicker's date.
    * (this function is only assigned to the controller calendar)
    * @function viewRenderHandler
@@ -455,7 +411,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       weekends: $.cookie('show-weekends') === 'true',
       header: (controllerCalendar) ? controlBtns : false,
       defaultView: 'basicWeek',
-      contentHeight: 120,
+      contentHeight: "auto",
       editable: false,
       droppable: false,
       firstDay: 1,
