@@ -407,8 +407,10 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
         //Set the height
         $(calendarEl).fullCalendar('option', 'contentHeight', height);
 
+        //The previous line renders this one unnecessary. When the screen width
+        //is small, the titles should not have the same height as the calendars.
         // deduct margins for left col
-        $(calendarEl).parent().prev().css('height', height);
+        // $(calendarEl).parent().prev().css('height', height);
       };
     }());
   }
