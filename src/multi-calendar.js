@@ -1,4 +1,4 @@
-/*globals moment */
+/* globals moment, Promise, Headers, $ */
 
 //NOTE: Refactoring plan of action:
 // - Make as many functions as possible use nothing but their own parameters (DONE)
@@ -24,6 +24,37 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
   var weekPicker;
   var refreshIcon;
 
+  //Control the loading animation
+  var loading = (function () {
+
+    //Callbacks from config
+    var onShowCallback;
+    var onHideCallback;
+    return {
+      show: function () {
+        if (refreshIcon) { refreshIcon.classList.add('rotate'); }
+      },
+
+      hide: function () {
+        if (refreshIcon) { refreshIcon.classList.remove('rotate'); }
+      },
+
+      on: function (showHide, callback) {
+        if (callback && typeof callback !== 'function') {
+          console.error('loading.on(): The parameter provided is not a function.');
+        }
+
+        if (showHide && showHide.toUpperCase() === 'SHOW') {
+          onShowCallback = callback;
+        } else if (showHide && showHide.toUpperCase() === 'HIDE') {
+          onHideCallback = callback;
+        } else {
+          throw new Error('loading.on(): "' + showHide + '" is not a valid parameter option.');
+        }
+      }
+    };
+  }());
+
   // eventLoader takes care of loading stuff from the server.
   eventLoader = (function eventLoader() {
     //Private vars
@@ -40,20 +71,6 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       loadURL = pLoadURL;
       uids = pUids;
     }
-
-    var loading = (function () {
-      return {
-        show: function () {
-          if (refreshIcon) { refreshIcon.classList.add('rotate'); }
-        },
-
-        hide: function () {
-          setTimeout(function () {
-            if (refreshIcon && refreshIcon.classList.contains('rotate')) { refreshIcon.classList.remove('rotate'); }
-          }, 5000);
-        }
-      };
-    }());
 
     /**
      * @method load: loads calendar events from server from start date to end
@@ -428,7 +445,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       weekends: $.cookie('show-weekends') === 'true',
       header: (controllerCalendar) ? controlBtns : false,
       defaultView: 'basicWeek',
-      contentHeight: "auto",
+      contentHeight: 'auto',
       editable: false,
       droppable: false,
       firstDay: 1,
@@ -445,6 +462,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
 
       //Callbacks
       eventClick: eventClick,
+
       // eventAfterAllRender: createAdjustCalendarHeightFunction(calendarEl),
       eventRender: setEventTitle,
       viewRender: (controllerCalendar) ? viewRenderHandler : undefined,
@@ -759,6 +777,9 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
 
     var config = configurationObj;
     var i;
+
+    loading.on('show', configurationObj.loadingStart);
+    loading.on('hide', configurationObj.loadingStop);
 
     //Create all HTML and set titleClick listener.
     var calendarEls = createCalendarsHTML(targetEl, config.calendars);
