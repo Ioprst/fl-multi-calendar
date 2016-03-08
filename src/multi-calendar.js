@@ -16,9 +16,11 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
   }
 
   //GLOBALS
-  var calendarClass = 'fl-multi-calendar';
+  var WEEKPICKERFORMAT = 'YYYY-[W]WW';
+  var CALENDARCLASS = 'fl-multi-calendar';
   var _this = this;
   var eventLoader;
+  var calWeekStart = moment().weekday(1); // MomentJS object
 
   //HTML Elements
   var weekPicker;
@@ -291,29 +293,11 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
   };
 
   /**
-   * [setWeekPickerDate description]
+   * @function setWeekPickerDate
    * @param {Date} newDate
-   * @return {Boolean} whether the date was changed or not.
    */
   function setWeekPickerDate(newDate) {
-    var $weekpicker = $(weekPicker);
-    var oldDateStr = $weekpicker.val();
-
-    //Get current weekpicker value format
-    var format = 'YYYY-[W]WW';
-    if (oldDateStr.match(/\d{2}\/\d{2}\/\d{4}/)) {
-      format = 'DD/MM/YYYY';
-    }
-
-    //Update it with the new one if different
-    var dateChanged = false;
-    var newDateStr = moment(newDate).format(format);
-    if ($weekpicker.val() !== newDateStr) {
-      $weekpicker.val(newDateStr);
-      dateChanged = true;
-    }
-
-    return dateChanged;
+    weekPicker.value = moment(newDate).format(WEEKPICKERFORMAT);
   }
 
   function setURLDate(date) {
@@ -336,8 +320,10 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
    * @param {Date} date
    */
   function setStartDate(date) {
-    var differentDate = setWeekPickerDate(date);
-    if (differentDate) {
+    date = moment(date).weekday(1);
+    if (date.diff(calWeekStart, 'weeks')) {
+      calWeekStart = date;
+      setWeekPickerDate(date);
       setAllCalendarsDate(date);
       setURLDate(date);
     }
@@ -478,18 +464,9 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
   //      Calendar event listener functions
   // ===============================================
 
-  function listenToWeekpickerChanges() {
-    weekPicker.addEventListener('change', function weekPickerListener() {
-      var format = 'YYYY-[W]WW';
-      if (weekPicker.value.match(/\d{2}\/\d{2}\/\d{4}/)) {
-        format = 'DD/MM/YYYY';
-      }
-
-      var date = moment(weekPicker.value, format).weekday(1);
-      var newDateString = date.valueOf();
-
-      setStartDate(new Date(newDateString));
-    });
+  function weekPickerListener() {
+    var date = moment(weekPicker.value, WEEKPICKERFORMAT).weekday(1);
+    setStartDate(date);
   }
 
   /**
@@ -686,7 +663,8 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
         weekPicker.classList.add('form-control');
         weekPicker.setAttribute('type', 'week');
         weekPicker.classList.add('fl-weekpicker');
-        weekPicker.value = moment(new Date()).format('YYYY-[W]WW').valueOf();
+        weekPicker.value = moment().format(WEEKPICKERFORMAT);
+        weekPicker.addEventListener('change', weekPickerListener);
         weekPickerContainer.appendChild(weekPicker);
 
         rowTitle.classList.add('col-sm-12');
@@ -726,7 +704,7 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
       wrappingUserRow.appendChild(rowCalendar);
 
       var calendarEl = document.createElement('div');
-      calendarEl.classList.add(calendarClass);
+      calendarEl.classList.add(CALENDARCLASS);
       calendarEl.dataset.uid = cal.uid;
       rowCalendar.appendChild(calendarEl);
       calendarConfig[i].element = calendarEl;
@@ -825,7 +803,6 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
 
     //Make top bar sticky
     setupStickyHeader();
-    listenToWeekpickerChanges();
     autoReload(true);
 
     $('.show-all-staff').click(toggleStaff);
