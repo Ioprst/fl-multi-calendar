@@ -10,10 +10,10 @@
 </head>
 
 <body class="main skin-blue">
-  <div class='multi-calendar'></div>
 
 
   <!-- Dependencies -->
+  <script src="/bower_components/x-div/js/x-div.js"></script>
   <script src="/bower_components/moment/moment.js"></script>
   <script src="/bower_components/jquery/dist/jquery.min.js"></script>
   <script src="/bower_components/jquery.cookie/jquery.cookie.js"></script>
@@ -27,6 +27,9 @@
   <!-- module -->
   <script src='/src/debounce.js'></script>
   <script src='/src/multi-calendar.js'></script>
+
+
+  <x-div data-controller="/src/controller" data-config="calendarConfiguration"></x-div>
 
   <!-- module initialisation -->
   <script>
@@ -43,11 +46,7 @@
       console.log('Title click.');
     }
 
-    //Target element
-    var calendarTarget = document.querySelector('.multi-calendar');
-
     var calendarConfiguration = {
-      targetEl: calendarTarget,
       loadUrl: 'http://localhost:5000',
       calendars: [{
         name: 'Karl Marx',
@@ -72,9 +71,6 @@
         eventClick: eventClick,
       }, ],
     };
-
-    //Init
-    var djdCalendar = new DJDCalendar(calendarConfiguration);
   </script>
 </body>
 

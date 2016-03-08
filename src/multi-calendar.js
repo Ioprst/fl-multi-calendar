@@ -1,18 +1,10 @@
-/* globals moment, Promise, Headers, $ */
+/* globals moment, Promise, Headers, debounce, $ */
 
-//NOTE: Refactoring plan of action:
-// - Make as many functions as possible use nothing but their own parameters (DONE)
-// - Separate modal design from javascript (DONE)
-// - Separate popup design from javascript (DONE)
-// - Separate general calendar code from Hive-specific code.
-// - Couple script more loosely to HTML.
-// - Create tests.
-
-function DJDCalendar(configurationObj) { //jshint ignore:line
+function MultiCalendar(configurationObj) { //jshint ignore:line
   'use strict';
 
-  if (!(this instanceof DJDCalendar)) {
-    return new DJDCalendar(arguments[0], arguments[1]);
+  if (!(this instanceof MultiCalendar)) {
+    return new MultiCalendar(arguments[0]);
   }
 
   //GLOBALS
@@ -200,31 +192,6 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
       getViewType: getViewType,
     };
   }());
-
-  /**
-   * Change view type according to the element's width;
-   * @function beResponsive
-   * @return {[void]}
-   */
-  var beResponsive = function () {
-    var smallViewType = 'basicDay';
-
-    function adjustSize() {
-      var currentViewType = dateController.getViewType();
-      var windowWidth = window.innerWidth;
-      if (windowWidth <= 600 && currentViewType !== smallViewType) {
-        dateController.setViewType(smallViewType);
-      } else if (windowWidth > 600 && currentViewType === smallViewType) {
-        dateController.setViewType('basicWeek');
-      }
-    }
-
-    window.addEventListener('resize', debounce(adjustSize, 300));
-    adjustSize();
-
-    //Make sure it will not be called again.
-    beResponsive = function () {};
-  };
 
   // eventLoader takes care of loading stuff from the server.
   eventLoader = (function eventLoader() {
@@ -609,6 +576,30 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
   // ===============================================
   //      Calendar event listener functions
   // ===============================================
+  /**
+   * Change view type according to the element's width;
+   * @function beResponsive
+   * @return {[void]}
+   */
+  var beResponsive = function () {
+    var smallViewType = 'basicDay';
+
+    function adjustSize() {
+      var currentViewType = dateController.getViewType();
+      var windowWidth = window.innerWidth;
+      if (windowWidth <= 600 && currentViewType !== smallViewType) {
+        dateController.setViewType(smallViewType);
+      } else if (windowWidth > 600 && currentViewType === smallViewType) {
+        dateController.setViewType('basicWeek');
+      }
+    }
+
+    window.addEventListener('resize', debounce(adjustSize, 300));
+    adjustSize();
+
+    //Make sure it will not be called again.
+    beResponsive = function () {};
+  };
 
   /**
    * Assigns a function to be called when the user clicks on the day header in
