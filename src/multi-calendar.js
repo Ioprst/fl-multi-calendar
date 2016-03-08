@@ -689,14 +689,14 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
         spanLink.appendChild(linkIcon);
 
         if (cal.description) {
-          spanLink.appendChild(document.createElement('br'));
+          titleSpan.appendChild(document.createElement('br'));
           spanEm = document.createElement('em');
           spanEm.innerText = cal.description;
-          spanLink.appendChild(spanEm);
+          titleSpan.appendChild(spanEm);
         }
       }
 
-      spanLink.innerText += cal.name;
+      spanLink.innerHTML += cal.name;
 
       //Calendar part
       var rowCalendar = document.createElement('div');
