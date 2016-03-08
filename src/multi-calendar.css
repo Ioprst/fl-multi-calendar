@@ -27,7 +27,9 @@
 }
 
 .fc-toolbar [class^="icon-"]:before,
-.fc-toolbar [class*=" icon-"]:before {
+.fc-toolbar [class*=" icon-"]:before,
+.fc-toolbar [class^="icon-"]:after,
+.fc-toolbar [class*=" icon-"]:after {
   font-family: "fl-calendar-buttons" !important;
   font-style: normal !important;
   font-weight: normal !important;
@@ -41,8 +43,15 @@
 
 .icon-refresh:before {
   content: "\61";
+  padding-top: 2px;
+  margin: 0;
+  position: absolute;
+}
+
+.icon-refresh:after {
+  content: "\61";
   position: relative;
-  top: 3px;
+  opacity: 0;
 }
 .icon-chevron-left:before {
   content: "\62";
@@ -103,12 +112,16 @@
 }
 
 .fc-toolbar button{
-  height: 30px;
+  max-height: 30px;
+  min-height: 30px;
   border-radius: 0;
   border: 1px solid;
   border-color: rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25);
 }
 
+.fl-refresh-btn {
+  padding-top: 4px !important;
+}
 .week {
   padding-right: 0px;
 }
@@ -122,6 +135,7 @@
 .fl-weekpicker::-webkit-clear-button,
 .fl-weekpicker::-webkit-inner-spin-button{
   display:none;
+  padding-top: 3px;
 }
 
 .fl-weekpicker::-webkit-calendar-picker-indicator{
@@ -131,3 +145,13 @@
   height: auto;
   opacity: 0;
 }
+
+.rotate:before {
+    position: absolute;
+    -webkit-animation:spin 4s linear infinite;
+    -moz-animation:spin 4s linear infinite;
+    animation:spin 4s linear infinite;
+}
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }

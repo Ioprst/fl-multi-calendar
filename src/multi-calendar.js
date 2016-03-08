@@ -19,7 +19,10 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
   var calendarClass = 'fl-multi-calendar';
   var _this = this;
   var eventLoader;
-  var weekPicker; //HTMLElement
+
+  //HTML Elements
+  var weekPicker;
+  var refreshIcon;
 
   // eventLoader takes care of loading stuff from the server.
   eventLoader = (function eventLoader() {
@@ -37,6 +40,20 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       loadURL = pLoadURL;
       uids = pUids;
     }
+
+    var loading = (function () {
+      return {
+        show: function () {
+          if (refreshIcon) { refreshIcon.classList.add('rotate'); }
+        },
+
+        hide: function () {
+          setTimeout(function () {
+            if (refreshIcon && refreshIcon.classList.contains('rotate')) { refreshIcon.classList.remove('rotate'); }
+          }, 5000);
+        }
+      };
+    }());
 
     /**
      * @method load: loads calendar events from server from start date to end
@@ -65,7 +82,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       }
 
       //Register that we are loading
-      $('#loading').show();
+      loading.show();
       isFetching = true;
 
       var requestConfig = {
@@ -86,7 +103,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
           return response.json();
         })
         .then(function (data) {
-          $('#loading').hide();
+          loading.hide();
           if (data === null) {
             alert('Error fetching events. Please refresh.');
             return null;
@@ -539,11 +556,12 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
 
     // Create refresh button
     var refreshBtn = document.createElement('button');
-    var refreshIcon = document.createElement('i');
+    refreshIcon = document.createElement('i'); //global
 
     refreshBtn.classList.add('fc-button');
     refreshBtn.classList.add('fc-button-refresh');
     refreshBtn.classList.add('fc-state-default');
+    refreshBtn.classList.add('fl-refresh-btn');
     refreshBtn.classList.add('btn');
     refreshBtn.setAttribute('unselectable', 'on');
 
