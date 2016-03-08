@@ -262,7 +262,8 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
    * @return {Boolean} whether the date was changed or not.
    */
   function setWeekPickerDate(newDate) {
-    var $weekpicker = $('#calendar-week');
+    var weekpicker = targetEl.querySelector('.calendar-week'); //FIXME: global var
+    var $weekpicker = $(weekpicker);
     var oldDateStr = $weekpicker.val();
 
     //Get current weekpicker value format
@@ -444,7 +445,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
   // ===============================================
 
   function listenToWeekpickerChanges() {
-    var weekpicker = document.querySelector('#calendar-week');
+    var weekpicker = targetEl.querySelector('.calendar-week');
 
     weekpicker.addEventListener('change', function weekPickerListener() {
       var format = 'YYYY-[W]WW';
@@ -560,7 +561,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
     calendarEl.querySelector('.fc-left').appendChild(refreshBtn);
 
     // Create 'Show/Hide Weekends' button
-    var toggleWeekendBtn = document.createElement('span');
+    var toggleWeekendBtn = document.createElement('button');
     toggleWeekendBtn.classList.add('fc-button');
     toggleWeekendBtn.classList.add('fc-button-show-weekends');
     toggleWeekendBtn.classList.add('fc-state-default');
@@ -613,22 +614,6 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
     wrappingCol.classList.add('calendars');
     wrappingRow.appendChild(wrappingCol);
 
-    var weekPickerRow = document.createElement('div');
-    weekPickerRow.classList.add('row');
-    weekPickerRow.classList.add('week');
-    wrappingCol.appendChild(weekPickerRow);
-
-    var weekPickerCol = document.createElement('div');
-    weekPickerCol.classList.add('col-md-2');
-    weekPickerRow.appendChild(weekPickerCol);
-
-    weekPicker = document.createElement('input');
-    weekPicker.classList.add('form-control');
-    weekPicker.setAttribute('type', 'week');
-    weekPicker.setAttribute('id', 'calendar-week'); //TODO: remove this id when possible.
-    weekPicker.value = moment(new Date()).format('YYYY-[W]WW').valueOf();
-    weekPickerCol.appendChild(weekPicker);
-
     //-------------------------------
     //Now create each calendar row.
     var cal;
@@ -647,9 +632,38 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       wrappingCol.appendChild(wrappingUserRow);
 
       //Title part
+
       rowTitle = document.createElement('div');
-      rowTitle.classList.add('col-md-2');
-      wrappingUserRow.appendChild(rowTitle);
+
+      //Put weekpicker within first title div.
+      if (i === 0) {
+        var rowTitleContainer = document.createElement('div');
+        rowTitleContainer.classList.add('col-md-2');
+
+        var rowTitleContainerRow = document.createElement('div');
+        rowTitleContainerRow.classList.add('row');
+        rowTitleContainer.appendChild(rowTitleContainerRow);
+
+        var weekPickerContainer = document.createElement('div');
+        weekPickerContainer.classList.add('col-sm-12');
+        weekPickerContainer.classList.add('week');
+        rowTitleContainerRow.appendChild(weekPickerContainer);
+
+        weekPicker = document.createElement('input');
+        weekPicker.classList.add('form-control');
+        weekPicker.setAttribute('type', 'week');
+        weekPicker.classList.add('calendar-week');
+        weekPicker.value = moment(new Date()).format('YYYY-[W]WW').valueOf();
+        weekPickerContainer.appendChild(weekPicker);
+
+        rowTitle.classList.add('col-sm-12');
+        rowTitleContainerRow.appendChild(rowTitle);
+
+        wrappingUserRow.appendChild(rowTitleContainer);
+      } else {
+        rowTitle.classList.add('col-md-2');
+        wrappingUserRow.appendChild(rowTitle);
+      }
 
       titleSpan = document.createElement('span');
       rowTitle.appendChild(titleSpan);
