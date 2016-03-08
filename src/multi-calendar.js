@@ -389,17 +389,11 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
    * @return {void}
    */
 
-  var bool = false;
+  // var bool = false;
   function toggleWeekend() {
-    // var showWeekends = $.cookie('show-weekends') === 'true';
-    // $.cookie('show-weekends', !showWeekends);
-    // location.reload();
-    bool = !bool;
-    if (bool) {
-      dateController.setViewType('basicWeek');
-    } else {
-      dateController.setViewType('basicDay');
-    }
+    var showWeekends = $.cookie('show-weekends') === 'true';
+    $.cookie('show-weekends', !showWeekends);
+    location.reload();
   }
 
   /**
