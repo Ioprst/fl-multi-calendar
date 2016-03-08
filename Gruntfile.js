@@ -1,5 +1,5 @@
 module.exports = function (grunt) {
-
+  'use strict';
   grunt.initConfig({
     jshint: {
       files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
@@ -14,8 +14,17 @@ module.exports = function (grunt) {
           sourceMapName: 'build/multi-calendar.map',
         },
         files: {
-          'build/multi-calendar.min.js': ['src/multi-calendar.js'],
+          'build/multi-calendar.min.js': ['build/multi-calendar.js'],
         },
+      },
+    },
+    concat: {
+      options: {
+        separator: ';',
+      },
+      js: {
+        src: ['src/debounce.js', 'src/multi-calendar.js', 'src/controller.js'],
+        dest: 'build/multi-calendar.js',
       },
     },
     demo: {
@@ -25,11 +34,12 @@ module.exports = function (grunt) {
 
   grunt.loadTasks('./tasks');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-uglify');
 
   grunt.registerTask('default', ['jshint']);
-  grunt.registerTask('build', ['jshint', 'uglify']);
+  grunt.registerTask('build', ['jshint', 'concat', 'uglify']);
   grunt.registerTask('test', ['jasmine']);
 
 };
