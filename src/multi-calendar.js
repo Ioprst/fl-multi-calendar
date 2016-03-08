@@ -1,4 +1,4 @@
-/*globals moment, Headers */
+/*globals moment */
 
 //NOTE: Refactoring plan of action:
 // - Make as many functions as possible use nothing but their own parameters (DONE)
@@ -16,7 +16,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
   }
 
   //GLOBALS
-  var calendarClass = 'js-cal-calendar';
+  var calendarClass = 'fl-multi-calendar';
   var _this = this;
   var eventLoader;
   var weekPicker; //HTMLElement
@@ -262,8 +262,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
    * @return {Boolean} whether the date was changed or not.
    */
   function setWeekPickerDate(newDate) {
-    var weekpicker = targetEl.querySelector('.calendar-week'); //FIXME: global var
-    var $weekpicker = $(weekpicker);
+    var $weekpicker = $(weekPicker);
     var oldDateStr = $weekpicker.val();
 
     //Get current weekpicker value format
@@ -445,15 +444,13 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
   // ===============================================
 
   function listenToWeekpickerChanges() {
-    var weekpicker = targetEl.querySelector('.calendar-week');
-
-    weekpicker.addEventListener('change', function weekPickerListener() {
+    weekPicker.addEventListener('change', function weekPickerListener() {
       var format = 'YYYY-[W]WW';
-      if (weekpicker.value.match(/\d{2}\/\d{2}\/\d{4}/)) {
+      if (weekPicker.value.match(/\d{2}\/\d{2}\/\d{4}/)) {
         format = 'DD/MM/YYYY';
       }
 
-      var date = moment(weekpicker.value, format).weekday(1);
+      var date = moment(weekPicker.value, format).weekday(1);
       var newDateString = date.valueOf();
 
       setStartDate(new Date(newDateString));
@@ -649,10 +646,10 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
         weekPickerContainer.classList.add('week');
         rowTitleContainerRow.appendChild(weekPickerContainer);
 
-        weekPicker = document.createElement('input');
+        weekPicker = document.createElement('input'); // global
         weekPicker.classList.add('form-control');
         weekPicker.setAttribute('type', 'week');
-        weekPicker.classList.add('calendar-week');
+        weekPicker.classList.add('fl-weekpicker');
         weekPicker.value = moment(new Date()).format('YYYY-[W]WW').valueOf();
         weekPickerContainer.appendChild(weekPicker);
 
