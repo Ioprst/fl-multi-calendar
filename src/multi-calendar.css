@@ -66,8 +66,33 @@
   top: 2px;
 }
 
+.fl-refresh-btn {
+  padding-top: 4px !important;
+}
+
+.rotate:before {
+    position: absolute;
+    -webkit-animation:spin 4s linear infinite;
+    -moz-animation:spin 4s linear infinite;
+    animation:spin 4s linear infinite;
+}
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 
 /* Calendar*/
+.fc-toolbar {
+  margin-bottom: 5px;
+}
+.fl-row-title {
+  text-align: center;
+}
+
+.fl-row-title a {
+  font-weight: bold;
+  color: #222;
+  text-decoration: none;
+}
 .fc-time{
    display : none;
 }
@@ -119,12 +144,13 @@
   border-color: rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25);
 }
 
-.fl-refresh-btn {
-  padding-top: 4px !important;
-}
+
+/* Weekpicker */
 .week {
   padding-right: 0px;
 }
+
+
 .fl-weekpicker {
   text-align: center;
   width: 100%;
@@ -145,13 +171,3 @@
   height: auto;
   opacity: 0;
 }
-
-.rotate:before {
-    position: absolute;
-    -webkit-animation:spin 4s linear infinite;
-    -moz-animation:spin 4s linear infinite;
-    animation:spin 4s linear infinite;
-}
-@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
-@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
-@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }

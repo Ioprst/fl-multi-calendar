@@ -16,11 +16,9 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
   }
 
   //GLOBALS
-  var WEEKPICKERFORMAT = 'YYYY-[W]WW';
   var CALENDARCLASS = 'fl-multi-calendar';
   var _this = this;
   var eventLoader;
-  var calWeekStart = moment().weekday(1); // MomentJS object
 
   //HTML Elements
   var weekPicker;
@@ -56,6 +54,154 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
       }
     };
   }());
+
+  var dateController = (function () {
+    var views = [
+      {
+        name: 'basicDay',
+        type: 'day',
+        weekPickerType: 'date',
+        format: 'YYYY-MM-DD',
+      },
+      {
+        name: 'basicWeek',
+        type: 'week',
+        weekPickerType: 'week',
+        format: 'YYYY-[W]WW',
+      },
+    ];
+    var viewTypeIndex = 0;
+    var currentStartDate = moment().format(views[viewTypeIndex].format); //String
+    var weekPicker;
+
+    /**
+     * @function setWeekPickerDate
+     * @param {String or MomentJS} newDate
+     */
+    function setWeekPickerDate(newDate) {
+      weekPicker.value = moment(newDate).format(views[viewTypeIndex].format);
+    }
+
+    /**
+     * @function setWeekPickerType
+     * @param {String} type
+     */
+    function setWeekPickerType(type) {
+      weekPicker.setAttribute('type', type);
+    }
+
+    /**
+     * @function setURLDate
+     * @param {String or MomentJS} date
+     */
+    function setURLDate(date) {
+      // deep linking - set hash
+      location.hash = 'start=' + moment(date).format('YYYY-MM-DD');
+    }
+
+    /**
+     * @function setAllCalendarsDate
+     * @param {String or MomentJS} date
+     */
+    function setAllCalendarsDate(date) {
+      date = moment(date);
+
+      //Tell all calendars about date change.
+      var domEvent = new CustomEvent('fullCalendarViewRender', {
+        detail: date
+      });
+      document.dispatchEvent(domEvent);
+    }
+
+    /**
+     * @function setAllCalendarsView
+     * @param {String} type
+     */
+    function setAllCalendarsView(type) {
+      //Tell all calendars about date change.
+      var domEvent = new CustomEvent('multiCalendarViewChange', {
+        detail: type
+      });
+      document.dispatchEvent(domEvent);
+    }
+
+    //---------------------------
+    //  Returned functions
+    //--------------------------
+    function getDate() {
+      return moment(currentStartDate);
+    }
+
+    //Sets the date for all calendars, weeekpicker and URL.
+    function setDate(newDate) {
+      newDate = moment(newDate);
+      var current = moment(currentStartDate);
+      if (current.diff(newDate, views[viewTypeIndex].type) !== 0) {
+        currentStartDate = newDate.format(views[viewTypeIndex].format);
+        setWeekPickerDate(currentStartDate);
+        setAllCalendarsDate(currentStartDate);
+        setURLDate(newDate);
+      }
+    }
+
+    function setWeekPicker(el) {
+      if (!el) {
+        throw new Error('setWeekPicker(): Invalid element as weekpicker.');
+      }
+
+      weekPicker = el;
+      setWeekPickerDate(currentStartDate);
+      el.addEventListener('change', function () {
+        setDate(el.value);
+      });
+    }
+
+    //Set calendars view type.
+    function setViewType(type) {
+      //See if is one of the acceptable types
+      var idx = -1;
+      for (var i = 0; i < views.length; i++) {
+        if (views[i].name === type) {
+          idx = i;
+          break;
+        }
+      }
+
+      if (idx >= 0) {
+        viewTypeIndex = idx;
+
+        //Change currentStartDate notation;
+        currentStartDate = moment(currentStartDate).format(views[viewTypeIndex].format);
+        setAllCalendarsView(views[viewTypeIndex].name);
+        setWeekPickerType(views[viewTypeIndex].weekPickerType);
+        setWeekPickerDate(currentStartDate);
+      } else {
+        console.error('setViewType(): Invalid view type.');
+      }
+    }
+
+    function getViewType() {
+      return views[viewTypeIndex].name;
+    }
+
+    return {
+      getDate: getDate,
+      setDate: setDate,
+      setWeekPicker: setWeekPicker,
+      setViewType: setViewType,
+      getViewType: getViewType,
+    };
+  }());
+
+  /**
+   * Sets a start date for all calendars and makes all necessary changes
+   * in the page and URL corresponding to this date change.
+   * @function setStartDate
+   * @param {Date} date
+   */
+  function setStartDate(date) {
+    dateController.setDate(date);
+  }
 
   // eventLoader takes care of loading stuff from the server.
   eventLoader = (function eventLoader() {
@@ -252,10 +398,18 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
    * @function toggleWeekend
    * @return {void}
    */
+
+  var bool = false;
   function toggleWeekend() {
-    var showWeekends = $.cookie('show-weekends') === 'true';
-    $.cookie('show-weekends', !showWeekends);
-    location.reload();
+    // var showWeekends = $.cookie('show-weekends') === 'true';
+    // $.cookie('show-weekends', !showWeekends);
+    // location.reload();
+    bool = !bool;
+    if (bool) {
+      dateController.setViewType('basicWeek');
+    } else {
+      dateController.setViewType('basicDay');
+    }
   }
 
   /**
@@ -291,43 +445,6 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
       }
     }));
   };
-
-  /**
-   * @function setWeekPickerDate
-   * @param {Date} newDate
-   */
-  function setWeekPickerDate(newDate) {
-    weekPicker.value = moment(newDate).format(WEEKPICKERFORMAT);
-  }
-
-  function setURLDate(date) {
-    // deep linking - set hash
-    location.hash = 'start=' + moment(date).format('YYYY-MM-DD');
-  }
-
-  function setAllCalendarsDate(date) {
-    //Tell all calendars about date change.
-    var domEvent = new CustomEvent('fullCalendarViewRender', {
-      detail: date
-    });
-    document.dispatchEvent(domEvent);
-  }
-
-  /**
-   * Sets a start date for all calendars and makes all necessary changes
-   * in the page and URL corresponding to this date change.
-   * @function setStartDate
-   * @param {Date} date
-   */
-  function setStartDate(date) {
-    date = moment(date).weekday(1);
-    if (date.diff(calWeekStart, 'weeks')) {
-      calWeekStart = date;
-      setWeekPickerDate(date);
-      setAllCalendarsDate(date);
-      setURLDate(date);
-    }
-  }
 
   // ===============================
   //  fullCalendar Callbacks and initialisation
@@ -426,11 +543,17 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
       $calendar.fullCalendar('gotoDate', newDate);
     });
 
+    // Listen to view changes.
+    document.addEventListener('multiCalendarViewChange', function (e) {
+      var viewType = e.detail;
+      $calendar.fullCalendar('changeView', viewType);
+    });
+
     // init fullCalendar obj
     $calendar.fullCalendar({
       weekends: $.cookie('show-weekends') === 'true',
       header: (controllerCalendar) ? controlBtns : false,
-      defaultView: 'basicWeek',
+      defaultView: 'basicDay',
       contentHeight: 'auto',
       editable: false,
       droppable: false,
@@ -463,11 +586,6 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
   // ===============================================
   //      Calendar event listener functions
   // ===============================================
-
-  function weekPickerListener() {
-    var date = moment(weekPicker.value, WEEKPICKERFORMAT).weekday(1);
-    setStartDate(date);
-  }
 
   /**
    * Assigns a function to be called when the user clicks on the day header in
@@ -644,6 +762,7 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
       //Title part
 
       rowTitle = document.createElement('div');
+      rowTitle.classList.add('fl-row-title');
 
       //Put weekpicker within first title div.
       if (i === 0) {
@@ -663,8 +782,7 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
         weekPicker.classList.add('form-control');
         weekPicker.setAttribute('type', 'week');
         weekPicker.classList.add('fl-weekpicker');
-        weekPicker.value = moment().format(WEEKPICKERFORMAT);
-        weekPicker.addEventListener('change', weekPickerListener);
+        dateController.setWeekPicker(weekPicker);
         weekPickerContainer.appendChild(weekPicker);
 
         rowTitle.classList.add('col-sm-12');
