@@ -46,6 +46,7 @@
     var calendarTarget = document.querySelector('.multi-calendar');
 
     var calendarConfiguration = {
+      targetEl: calendarTarget,
       loadUrl: 'http://localhost:5000',
       calendars: [{
         name: 'Karl Marx',
@@ -72,7 +73,7 @@
     };
 
     //Init
-    var djdCalendar = new DJDCalendar(calendarTarget, calendarConfiguration);
+    var djdCalendar = new DJDCalendar(calendarConfiguration);
   </script>
 </body>
 

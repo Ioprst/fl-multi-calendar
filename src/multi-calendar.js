@@ -8,7 +8,7 @@
 // - Couple script more loosely to HTML.
 // - Create tests.
 
-function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
+function DJDCalendar(configurationObj) { //jshint ignore:line
   'use strict';
 
   if (!(this instanceof DJDCalendar)) {
@@ -766,20 +766,26 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
     };
   }
 
-  function init(targetEl, configurationObj) {
-    if (!targetEl || typeof configurationObj !== 'object') {
-      throw new Error('Unable to create calendar. Invalid parameters');
+  function init(configurationObj) {
+    if (typeof configurationObj !== 'object') {
+      throw new Error('init(): Unable to create calendar. Invalid parameters');
+    } else if (!configurationObj.targetEl) {
+      throw new Error('init(): No target element provided');
     }
 
+    var targetEl = configurationObj.targetEl;
     if (typeof targetEl === 'string') {
       targetEl = document.querySelector(targetEl);
+      if (!targetEl) {
+        throw new Error('init(): targetEl string selector did not return an HTMLElement.');
+      }
     }
 
     var config = configurationObj;
     var i;
 
-    loading.on('show', configurationObj.loadingStart);
-    loading.on('hide', configurationObj.loadingStop);
+    loading.on('show', configurationObj.loadingAnimationStart);
+    loading.on('hide', configurationObj.loadingAnimationStop);
 
     //Create all HTML and set titleClick listener.
     var calendarEls = createCalendarsHTML(targetEl, config.calendars);
@@ -825,6 +831,6 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
     $('.show-all-staff').click(toggleStaff);
   }
 
-  init(targetEl, configurationObj);
+  init(configurationObj);
   this.init = init;
 }
