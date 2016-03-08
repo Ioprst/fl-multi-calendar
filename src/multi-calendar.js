@@ -19,27 +19,26 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
   var CALENDARCLASS = 'fl-multi-calendar';
   var _this = this;
   var eventLoader;
-
-  //HTML Elements
-  var weekPicker;
-  var refreshIcon;
+  var loading;
+  var dateController;
 
   //Control the loading animation
-  var loading = (function () {
+  loading = (function () {
+    var refreshIcon;
 
     //Callbacks from config
     var onShowCallback;
     var onHideCallback;
     return {
-      show: function () {
+      show: function show() {
         if (refreshIcon) { refreshIcon.classList.add('rotate'); }
       },
 
-      hide: function () {
+      hide: function hide() {
         if (refreshIcon) { refreshIcon.classList.remove('rotate'); }
       },
 
-      on: function (showHide, callback) {
+      on: function on(showHide, callback) {
         if (callback && typeof callback !== 'function') {
           console.error('loading.on(): The parameter provided is not a function.');
         }
@@ -51,11 +50,20 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
         } else {
           throw new Error('loading.on(): "' + showHide + '" is not a valid parameter option.');
         }
+      },
+
+      setLoadingElement: function setLoadingElement(el) {
+        if (typeof el !== 'object') {
+          throw new Error('setLoadingElement(): Invalid parameter for loading element.');
+        }
+
+        refreshIcon = el;
       }
+
     };
   }());
 
-  var dateController = (function () {
+  dateController = (function () {
     var views = [
       {
         name: 'basicDay',
@@ -70,7 +78,7 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
         format: 'YYYY-[W]WW',
       },
     ];
-    var viewTypeIndex = 0;
+    var viewTypeIndex = 1;
     var currentStartDate = moment().format(views[viewTypeIndex].format); //String
     var weekPicker;
 
@@ -167,7 +175,9 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
         }
       }
 
-      if (idx >= 0) {
+      if (idx < 0) {
+        console.error('setViewType(): Invalid view type.');
+      } else if (idx !== viewTypeIndex) {
         viewTypeIndex = idx;
 
         //Change currentStartDate notation;
@@ -175,8 +185,6 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
         setAllCalendarsView(views[viewTypeIndex].name);
         setWeekPickerType(views[viewTypeIndex].weekPickerType);
         setWeekPickerDate(currentStartDate);
-      } else {
-        console.error('setViewType(): Invalid view type.');
       }
     }
 
@@ -194,14 +202,29 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
   }());
 
   /**
-   * Sets a start date for all calendars and makes all necessary changes
-   * in the page and URL corresponding to this date change.
-   * @function setStartDate
-   * @param {Date} date
+   * Change view type according to the element's width;
+   * @function beResponsive
+   * @return {[void]}
    */
-  function setStartDate(date) {
-    dateController.setDate(date);
-  }
+  var beResponsive = function () {
+    var smallViewType = 'basicDay';
+
+    function adjustSize() {
+      var currentViewType = dateController.getViewType();
+      var windowWidth = window.innerWidth;
+      if (windowWidth <= 600 && currentViewType !== smallViewType) {
+        dateController.setViewType(smallViewType);
+      } else if (windowWidth > 600 && currentViewType === smallViewType) {
+        dateController.setViewType('basicWeek');
+      }
+    }
+
+    window.addEventListener('resize', debounce(adjustSize, 300));
+    adjustSize();
+
+    //Make sure it will not be called again.
+    beResponsive = function () {};
+  };
 
   // eventLoader takes care of loading stuff from the server.
   eventLoader = (function eventLoader() {
@@ -516,7 +539,7 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
    * @return {void}
    */
   function viewRenderHandler(view) {
-    setStartDate(view.start);
+    dateController.setDate(view.start);
   }
 
   /**
@@ -553,7 +576,7 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
     $calendar.fullCalendar({
       weekends: $.cookie('show-weekends') === 'true',
       header: (controllerCalendar) ? controlBtns : false,
-      defaultView: 'basicDay',
+      defaultView: dateController.getViewType(),
       contentHeight: 'auto',
       editable: false,
       droppable: false,
@@ -669,7 +692,7 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
 
     // Create refresh button
     var refreshBtn = document.createElement('button');
-    refreshIcon = document.createElement('i'); //global
+    var refreshIcon = document.createElement('i'); //global
 
     refreshBtn.classList.add('fc-button');
     refreshBtn.classList.add('fc-button-refresh');
@@ -680,6 +703,7 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
 
     refreshIcon.classList.add('icon');
     refreshIcon.classList.add('icon-refresh');
+    loading.setLoadingElement(refreshIcon);
 
     refreshBtn.appendChild(refreshIcon);
     refreshBtn.addEventListener('click', function () {
@@ -778,7 +802,7 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
         weekPickerContainer.classList.add('week');
         rowTitleContainerRow.appendChild(weekPickerContainer);
 
-        weekPicker = document.createElement('input'); // global
+        var weekPicker = document.createElement('input'); // global
         weekPicker.classList.add('form-control');
         weekPicker.setAttribute('type', 'week');
         weekPicker.classList.add('fl-weekpicker');
@@ -824,6 +848,7 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
       var calendarEl = document.createElement('div');
       calendarEl.classList.add(CALENDARCLASS);
       calendarEl.dataset.uid = cal.uid;
+
       rowCalendar.appendChild(calendarEl);
       calendarConfig[i].element = calendarEl;
 
@@ -922,7 +947,7 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
     //Make top bar sticky
     setupStickyHeader();
     autoReload(true);
-
+    beResponsive();
     $('.show-all-staff').click(toggleStaff);
   }
 
