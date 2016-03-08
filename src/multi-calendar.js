@@ -454,7 +454,7 @@ function DJDCalendar(configurationObj) { //jshint ignore:line
         week: 'MMM D YYYY'
       },
       columnFormat: {
-        week: 'ddd, MMM d'
+        week: 'ddd, MMM D'
       },
       year: defaultDate ? defaultDate[1] : new Date().getFullYear(),
       month: defaultDate ? defaultDate[2] - 1 : new Date().getMonth(),
