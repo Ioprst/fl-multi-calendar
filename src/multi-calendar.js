@@ -415,6 +415,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
       editable: false,
       droppable: false,
       firstDay: 1,
+      timeFormat: '',
       titleFormat: {
         week: 'MMM D YYYY'
       },
@@ -539,7 +540,7 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
     $('.fc-button').addClass('btn');
 
     // Create refresh button
-    var refreshBtn = document.createElement('span');
+    var refreshBtn = document.createElement('button');
     var refreshIcon = document.createElement('i');
 
     refreshBtn.classList.add('fc-button');
@@ -548,8 +549,8 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
     refreshBtn.classList.add('btn');
     refreshBtn.setAttribute('unselectable', 'on');
 
-    refreshIcon.classList.add('fa');
-    refreshIcon.classList.add('fa-refresh');
+    refreshIcon.classList.add('icon');
+    refreshIcon.classList.add('icon-refresh');
 
     refreshBtn.appendChild(refreshIcon);
     refreshBtn.addEventListener('click', function () {
@@ -698,47 +699,6 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
     return calendarsArray;
   }
 
-  function addTooltipCss() {
-    var strVar = '';
-    strVar += '.fc-tooltip {';
-    strVar += '    position: relative;';
-    strVar += '    display: inline-block;';
-    strVar += '    border-bottom: 1px dotted black;';
-    strVar += '}';
-    strVar += '';
-    strVar += '.fc-tooltip .fc-tooltiptext {';
-    strVar += '    visibility: hidden;';
-    strVar += '    min-width: 100px;';
-    strVar += '    background-color: black;';
-    strVar += '    color: #fff;';
-    strVar += '    text-align: center;';
-    strVar += '    font-size: 12px;';
-    strVar += '    border-radius: 2px;';
-    strVar += '    padding: 3px;';
-    strVar += '    position: absolute;';
-    strVar += '    z-index: 1;';
-    strVar += '    top: -5px;';
-    strVar += '    right: 110%;';
-    strVar += '}';
-    strVar += '';
-    strVar += '.fc-tooltip .fc-tooltiptext::after {';
-    strVar += '    content: \'\';';
-    strVar += '    position: absolute;';
-    strVar += '    top: 50%;';
-    strVar += '    left: 100%;';
-    strVar += '    margin-top: -5px;';
-    strVar += '    border-width: 5px;';
-    strVar += '    border-style: solid;';
-    strVar += '    border-color: transparent transparent transparent black;';
-    strVar += '}';
-    strVar += '.fc-tooltip:hover .fc-tooltiptext {';
-    strVar += '    visibility: visible;';
-    strVar += '}';
-    var tooltipStyle = document.createElement('style');
-    tooltipStyle.innerHTML = strVar;
-    document.body.appendChild(tooltipStyle);
-  }
-
   // ===============================================
   //      Public methods
   // ===============================================
@@ -813,7 +773,6 @@ function DJDCalendar(targetEl, configurationObj) { //jshint ignore:line
     autoReload(true);
 
     $('.show-all-staff').click(toggleStaff);
-    addTooltipCss();
   }
 
   init(targetEl, configurationObj);

@@ -2,10 +2,9 @@
    "12345":[
       {
          "id":"12345",
-         "title":"09:00 &ndash; 18:00<br \/><strong><i class=\"fa fa-suitcase\"><\/i> Jonny<\/strong>",
+         "title":"Simple title",
          "start":"2016-02-19 09:00:00",
          "end":"2016-02-19 18:00:00",
-         "className":"label label-pink show-tooltip",
          "tooltip":"LOL"
       },
       {
@@ -13,7 +12,6 @@
          "title":"09:00 &ndash; 18:00<br \/><strong><i class=\"fa fa-suitcase\"><\/i> Jonny<\/strong>",
          "start":"2016-02-19 09:00:00",
          "end":"2016-02-19 18:00:00",
-         "className":"label label-pink show-tooltip",
          "tooltip":"LOdsfL"
       },
       {
@@ -21,7 +19,6 @@
          "title":"09:00 &ndash; 18:00<br \/><strong><i class=\"fa fa-suitcase\"><\/i> Jonny<\/strong>",
          "start":"2016-02-19 09:00:00",
          "end":"2016-02-19 18:00:00",
-         "className":"label label-pink show-tooltip",
          "tooltip":"LoooOL"
       },
       {
@@ -29,7 +26,6 @@
          "title":"09:00 &ndash; 18:00<br \/><strong><i class=\"fa fa-suitcase\"><\/i> Jonny<\/strong>",
          "start":"2016-02-19 09:00:00",
          "end":"2016-02-19 18:00:00",
-         "className":"label label-pink show-tooltip",
          "tooltip":"LOoooL"
       },
       {
@@ -37,7 +33,6 @@
          "title":"09:00 &ndash; 18:00<br \/><strong><i class=\"fa fa-suitcase\"><\/i> Jonny<\/strong>",
          "start":"2016-02-19 09:00:00",
          "end":"2016-02-19 18:00:00",
-         "className":"label label-pink show-tooltip",
          "tooltip":"LlololololololOL"
       }
    ],
@@ -59,8 +54,7 @@
          ],
          "products":[
             4
-         ],
-         "className":"fc-event-job label label-light-green"
+         ]
       }
    ],
    "23456":[
@@ -69,7 +63,6 @@
          "title":"09:00 &ndash; 18:00<br \/><strong><i class=\"fa fa-suitcase\"><\/i> Jonny<\/strong>",
          "start":"2016-02-19 09:00:00",
          "end":"2016-02-19 18:00:00",
-         "className":"label label-pink show-tooltip",
          "tooltip":"LOL"
       }
    ]
