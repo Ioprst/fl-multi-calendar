@@ -5,14 +5,20 @@ Visualise multiple people's schedules in one page
 
 ## Configuration
 The component is initialised with a configuration object which will contain the
-all the main callbacks and calendar subjects.
+all the main callbacks and calendar subjects. The configuration object should
+be in the global namespace. Tell [x-div](https://github.com/fourlabsldn/x-div)
+to use it with the `data-config` attribute.
 
 Here is how it could look like:
-``` javascript
-var calendarTarget = document.querySelector('.my-calendar-container');
 
-var calendarConfiguration = {
-  targetEl: calendarTarget, //Element or selector string
+**html**
+``` html
+<x-div data-controller="/path/to/multi-calendar" data-config="myConfig"></x-div>
+```
+
+**JavaScript**
+``` javascript
+var myConfig = {
   loadUrl: 'http://localhost:5000',
 
   loadingAnimationStart: function () {},
@@ -53,7 +59,6 @@ npm run demo
 ```
 
 ### Build
-
 ```
 npm run build
 ```
