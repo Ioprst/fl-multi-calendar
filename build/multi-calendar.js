@@ -842,14 +842,10 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
         var rowTitleContainer = document.createElement('div');
         rowTitleContainer.classList.add('col-md-2');
 
-        var rowTitleContainerRow = document.createElement('div');
-        rowTitleContainerRow.classList.add('row');
-        rowTitleContainer.appendChild(rowTitleContainerRow);
-
         var weekPickerContainer = document.createElement('div');
-        weekPickerContainer.classList.add('col-sm-12');
+        weekPickerContainer.classList.add('row');
         weekPickerContainer.classList.add('week');
-        rowTitleContainerRow.appendChild(weekPickerContainer);
+        rowTitleContainer.appendChild(weekPickerContainer);
 
         var weekPicker = document.createElement('input'); // global
         weekPicker.classList.add('form-control');
@@ -858,8 +854,8 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
         dateController.setWeekPicker(weekPicker);
         weekPickerContainer.appendChild(weekPicker);
 
-        rowTitle.classList.add('col-sm-12');
-        rowTitleContainerRow.appendChild(rowTitle);
+        rowTitle.classList.add('row');
+        rowTitleContainer.appendChild(rowTitle);
 
         wrappingUserRow.appendChild(rowTitleContainer);
       } else {
