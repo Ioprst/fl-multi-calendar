@@ -39,9 +39,16 @@ module.exports = function (grunt) {
         files: ['src/*.js'],
         tasks: ['build'],
         options: {
-          spawn: true,
+          spawn: false,
         },
       },
+      styles: {
+        files: ['src/multi-calendar.css'],
+        tasks: ['build'],
+        options: {
+          spawn: false,
+        },
+      }
     },
     dev: {
       doDev: {}
@@ -58,6 +65,6 @@ module.exports = function (grunt) {
   grunt.registerTask('default', ['jshint']);
   grunt.registerTask('build', ['jshint', 'concat', 'uglify']);
   grunt.registerTask('test', ['jasmine']);
-  grunt.registerTask('dev', ['build', 'demo']);
+  // grunt.registerTask('dev', ['build', 'demo']);
 
 };

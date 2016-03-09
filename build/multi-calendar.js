@@ -60,7 +60,7 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
       hide: function hide() {
         hideTimeout = setTimeout(function () {
           if (refreshIcon) { refreshIcon.classList.add('animation-paused'); }
-        }, 1000);
+        }, 500);
       },
 
       on: function on(showHide, callback) {
