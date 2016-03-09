@@ -3,11 +3,11 @@
 
 @font-face {
   font-family: "fl-calendar-buttons";
-  src:url("assets/fonts/fl-calendar-buttons.eot");
-  src:url("assets/fonts/fl-calendar-buttons.eot?#iefix") format("embedded-opentype"),
-    url("assets/fonts/fl-calendar-buttons.woff") format("woff"),
-    url("assets/fonts/fl-calendar-buttons.ttf") format("truetype"),
-    url("assets/fonts/fl-calendar-buttons.svg#fl-calendar-buttons") format("svg");
+  src:url("/build/fonts/fl-calendar-buttons.eot");
+  src:url("/build/fonts/fl-calendar-buttons.eot?#iefix") format("embedded-opentype"),
+    url("/build/fonts/fl-calendar-buttons.woff") format("woff"),
+    url("/build/fonts/fl-calendar-buttons.ttf") format("truetype"),
+    url("/build/fonts/fl-calendar-buttons.svg#fl-calendar-buttons") format("svg");
   font-weight: normal;
   font-style: normal;
 
@@ -70,11 +70,18 @@
   padding-top: 4px !important;
 }
 
+.animation-paused:before {
+    -webkit-animation-play-state: paused !important; /* Chrome, Safari, Opera */
+    animation-play-state: paused !important;
+}
+
 .rotate:before {
     position: absolute;
     -webkit-animation:spin 4s linear infinite;
     -moz-animation:spin 4s linear infinite;
     animation:spin 4s linear infinite;
+    -webkit-animation-play-state: running; /* Chrome, Safari, Opera */
+    animation-play-state: running;
 }
 @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }

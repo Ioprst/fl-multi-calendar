@@ -17,17 +17,21 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
   //Control the loading animation
   loading = (function () {
     var refreshIcon;
+    var hideTimeout;
 
     //Callbacks from config
     var onShowCallback;
     var onHideCallback;
     return {
       show: function show() {
-        if (refreshIcon) { refreshIcon.classList.add('rotate'); }
+        clearTimeout(hideTimeout);
+        if (refreshIcon) { refreshIcon.classList.remove('animation-paused'); }
       },
 
       hide: function hide() {
-        if (refreshIcon) { refreshIcon.classList.remove('rotate'); }
+        hideTimeout = setTimeout(function () {
+          if (refreshIcon) { refreshIcon.classList.add('animation-paused'); }
+        }, 1000);
       },
 
       on: function on(showHide, callback) {
@@ -50,8 +54,9 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
         }
 
         refreshIcon = el;
+        refreshIcon.classList.add('rotate');
+        refreshIcon.classList.add('animation-paused');
       }
-
     };
   }());
 
