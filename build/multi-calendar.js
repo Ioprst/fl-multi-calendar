@@ -803,6 +803,7 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
 
     var boxContent = document.createElement('div');
     boxContent.classList.add('box-content');
+    boxContent.classList.add('container');
     container.appendChild(boxContent);
 
     //wrappingRow and wrappingCol seem to be unnecessary

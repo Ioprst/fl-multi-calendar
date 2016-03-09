@@ -87,6 +87,9 @@
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 
 /* Calendar*/
+.box-content{
+  margin: 0px;
+}
 .fc-toolbar {
   margin-bottom: 5px;
 }
@@ -154,6 +157,7 @@
 /* Weekpicker */
 .week {
   padding-right: 0px;
+  margin-bottom: 15px;
 }
 
 
