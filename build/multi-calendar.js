@@ -803,12 +803,12 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
 
     var boxContent = document.createElement('div');
     boxContent.classList.add('box-content');
-    boxContent.classList.add('container');
     container.appendChild(boxContent);
 
     //wrappingRow and wrappingCol seem to be unnecessary
     var wrappingRow = document.createElement('div');
     wrappingRow.classList.add('row');
+    wrappingRow.classList.add('row-container');
     boxContent.appendChild(wrappingRow);
 
     var wrappingCol = document.createElement('div');
@@ -877,7 +877,7 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
         spanLink.appendChild(linkIcon);
 
         if (cal.description) {
-          titleSpan.appendChild(document.createElement('br'));
+          // titleSpan.appendChild(document.createElement('br'));
           spanEm = document.createElement('em');
           spanEm.innerText = cal.description;
           titleSpan.appendChild(spanEm);

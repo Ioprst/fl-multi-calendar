@@ -87,14 +87,16 @@
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 
 /* Calendar*/
-.box-content{
+.row-container{
   margin: 0px;
+  padding: 0px;
 }
 .fc-toolbar {
   margin-bottom: 5px;
 }
 .fl-row-title {
   text-align: center;
+  margin-top: 15px;
 }
 
 .fl-row-title a {
@@ -102,6 +104,12 @@
   color: #222;
   text-decoration: none;
 }
+.fl-row-title a,
+.fl-row-title em {
+    margin: 0 5px;
+    display: inline-block;
+}
+
 .fc-time{
    display : none;
 }
