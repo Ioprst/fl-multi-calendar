@@ -47,6 +47,7 @@ var calendarConfiguration = {
 ## Tasks
 
 ### Demo
+Will run a server and open the demo page in the browser
 ```
 npm run demo
 ```
@@ -55,6 +56,11 @@ npm run demo
 
 ```
 npm run build
+```
+### Dev
+Runs build, demo and watches changes to build again.
+```
+npm run dev
 ```
 
 ### Test

@@ -26,10 +26,26 @@ module.exports = function (grunt) {
         src: ['src/debounce.js', 'src/multi-calendar.js', 'src/controller.js'],
         dest: 'build/multi-calendar.js',
       },
+      css: {
+        src: ['src/multi-calendar.css'],
+        dest: 'build/multi-calendar.css',
+      },
     },
     demo: {
       calendar: {},
     },
+    watch: {
+      scripts: {
+        files: ['src/*.js'],
+        tasks: ['build'],
+        options: {
+          spawn: true,
+        },
+      },
+    },
+    dev: {
+      doDev: {}
+    }
   });
 
   grunt.loadTasks('./tasks');
@@ -37,9 +53,11 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask('default', ['jshint']);
   grunt.registerTask('build', ['jshint', 'concat', 'uglify']);
   grunt.registerTask('test', ['jasmine']);
+  grunt.registerTask('dev', ['build', 'demo']);
 
 };
