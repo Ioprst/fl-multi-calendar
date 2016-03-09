@@ -23,11 +23,19 @@ module.exports = function (grunt) {
         separator: ';',
       },
       js: {
-        src: ['src/debounce.js', 'src/multi-calendar.js', 'src/controller.js'],
+        src: [
+          'src/debounce.js',
+          'src/loading.js',
+          'src/autoReload.js',
+          'src/eventLoader.js',
+          'src/dateController.js',
+          'src/multi-calendar.js',
+          'src/controller.js',
+        ],
         dest: 'build/multi-calendar.js',
       },
       css: {
-        src: ['src/multi-calendar.css'],
+        src: ['src/*.css'],
         dest: 'build/multi-calendar.css',
       },
     },
