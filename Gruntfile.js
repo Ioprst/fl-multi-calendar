@@ -24,6 +24,8 @@ module.exports = function (grunt) {
       },
       js: {
         src: [
+          'bower_components/fullcalendar/dist/fullcalendar.js',
+          'src/throttle.js',
           'src/debounce.js',
           'src/loading.js',
           'src/autoReload.js',
@@ -35,7 +37,7 @@ module.exports = function (grunt) {
         dest: 'build/multi-calendar.js',
       },
       css: {
-        src: ['src/*.css'],
+        src: ['src/*.css', 'bower_components/fullcalendar/dist/fullcalendar.css'],
         dest: 'build/multi-calendar.css',
       },
     },

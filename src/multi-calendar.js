@@ -89,7 +89,7 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
     var $header = $('.fc-toolbar');
     var width = $header.innerWidth();
 
-    window.addEventListener('scroll', $.throttle(100, function () {
+    window.addEventListener('scroll', throttle(100, function () {
       if ($visible.visible(true)) {
         $header
           .removeClass('sticky')
