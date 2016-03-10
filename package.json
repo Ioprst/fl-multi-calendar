@@ -4,7 +4,6 @@
   "description": "Visualise multiple people's calendars",
   "main": "dist/calendar.js",
   "scripts": {
-    "test": "grunt test",
     "build": "grunt build",
     "demo": "grunt demo",
     "dev": "grunt dev"
@@ -32,6 +31,7 @@
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-contrib-uglify": "^1.0.0",
     "grunt-contrib-watch": "^0.6.1",
+    "grunt-phantom-batch-tester": "^0.2.3",
     "jasmine-core": "^2.4.1",
     "open": "0.0.5",
     "promise": "^7.1.1"

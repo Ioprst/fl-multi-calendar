@@ -64,9 +64,7 @@ module.exports = function (grunt) {
       doDev: {}
     },
     phantomTester: {
-      functional: {
-        src: ['tests/**/*.html'],
-      },
+      all: ['tests/**/*.html'],
     }
   });
 
@@ -80,6 +78,4 @@ module.exports = function (grunt) {
 
   grunt.registerTask('default', ['jshint']);
   grunt.registerTask('build', ['jshint', 'concat', 'uglify']);
-  grunt.registerTask('test', ['phantomTester']);
-
 };
