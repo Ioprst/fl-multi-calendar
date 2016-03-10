@@ -45,7 +45,10 @@ module.exports = function (grunt) {
       });
     }
 
-    runChild('grunt', ['watch']).then(done);
+    runChild('grunt', ['watch']).then(function () {
+      runChild('grunt', ['watch']).then(done);
+    });
+
     runChild('grunt', ['demo']).then(done);
   });
 };

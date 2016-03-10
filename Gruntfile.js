@@ -45,20 +45,13 @@ module.exports = function (grunt) {
       calendar: {},
     },
     watch: {
-      scripts: {
-        files: ['src/*.js'],
+      source: {
+        files: ['src/*.*'],
         tasks: ['build'],
         options: {
           spawn: false,
         },
       },
-      styles: {
-        files: ['src/multi-calendar.css'],
-        tasks: ['build'],
-        options: {
-          spawn: false,
-        },
-      }
     },
     dev: {
       doDev: {}
