@@ -1,4 +1,6 @@
-'use strict';
+/*globals expect, xDivTester */
+
+'use strict'; //jshint ignore:line
 
 // Make date into YYYY-MM-DDformat
 function convertDate(d) {
@@ -64,9 +66,48 @@ var demoConf = {
 
 describe('The multi-calendar should', function () {
   describe('when initialised', function () {
-    xit('throw if there is no config file');
-    xit('throw if there is no loadUrl in the config');
-    xit('throw if loadUrl is invalid');
+    var xdiv;
+
+    beforeEach(function () {
+      delete window.xConf;
+      window.xConf = Object.create(demoConf);
+      xdiv = document.createElement('x-div');
+      xdiv.setAttribute('data-controller', '../../build/multi-calendar');
+      xdiv.setAttribute('data-config', 'xConf');
+    });
+
+    afterEach(function () {
+      var els = document.querySelectorAll('x-div');
+      Array.prototype.forEach.call(els, function (el) {
+        el.remove();
+      });
+
+      els = null;
+      delete window.xConf;
+    });
+
+    it('throw if there is no config file', function () {
+      xdiv.removeAttribute('data-config');
+      expect(function () { xDivTester.callWith(xdiv); }).toThrow();
+    });
+
+    it('throw if the config file does not exist', function () {
+      delete window.xConf;
+      expect(function () {  xDivTester.callWith(xdiv); }).toThrow();
+    });
+
+    it('throw if there is no loadUrl in the config', function () {
+      window.xConf = Object.create(demoConf);
+      delete window.xConf.loadUrl;
+      expect(function () {  xDivTester.callWith(xdiv); }).toThrow();
+    });
+
+    it('throw if loadUrl is invalid', function () {
+      window.xConf.loadUrl = '```';
+      xdiv.setAttribute('data-config', 'xConf');
+      expect(function () { xDivTester.callWith(xdiv); }).toThrow(new Error('Invalid url'));
+    });
+
     xit('throw if there is no "calendars" field in the config file');
     xit('not throw if the "calendars" field is not an array');
     xit('throw if the "calendars" array is empty');
