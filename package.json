@@ -6,7 +6,8 @@
   "scripts": {
     "build": "grunt build",
     "demo": "grunt demo",
-    "dev": "grunt dev"
+    "dev": "grunt dev",
+    "test": "grunt test"
   },
   "repository": {
     "type": "git",

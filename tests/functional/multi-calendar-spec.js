@@ -2,6 +2,30 @@
 
 'use strict'; //jshint ignore:line
 
+// Clone an object
+function clone(obj) {
+  var temp;
+  if (obj === null || typeof (obj) !== 'object' || 'isActiveClone' in obj) {
+    return obj;
+  }
+
+  if (obj instanceof Date) {
+    temp = new obj.constructor(); //or new Date(obj);
+  } else {
+    temp = obj.constructor();
+  }
+
+  for (var key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      obj.isActiveClone = null;
+      temp[key] = clone(obj[key]);
+      delete obj.isActiveClone;
+    }
+  }
+
+  return temp;
+}
+
 // Make date into YYYY-MM-DDformat
 function convertDate(d) {
   function pad(s) {
@@ -70,7 +94,7 @@ describe('The multi-calendar should', function () {
 
     beforeEach(function () {
       delete window.xConf;
-      window.xConf = Object.create(demoConf);
+      window.xConf = clone(demoConf);
       xdiv = document.createElement('x-div');
       xdiv.setAttribute('data-config', 'xConf');
     });
@@ -87,42 +111,122 @@ describe('The multi-calendar should', function () {
 
     it('throw if there is no config file', function () {
       xdiv.removeAttribute('data-config');
-      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(/config/);
+      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(/config/i);
     });
 
     it('throw if the config file does not exist', function () {
       delete window.xConf;
-      expect(function () {  xDivTester.callWith(xdiv); }).toThrowError(/config/);
+      expect(function () {  xDivTester.callWith(xdiv); }).toThrowError(/config/i);
     });
 
     it('throw if there is no loadUrl in the config', function () {
       window.xConf = Object.create(demoConf);
-      delete window.xConf.loadUrl;
-      expect(function () {  xDivTester.callWith(xdiv); }).toThrowError(/loadUrl/);
+      window.xConf.loadUrl = undefined;
+      expect(function () {  xDivTester.callWith(xdiv); }).toThrowError(/url/i);
     });
 
     it('throw if loadUrl is invalid', function () {
       window.xConf.loadUrl = '```';
-      xdiv.setAttribute('data-config', 'xConf');
-      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(Error);
+      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(/url/i);
     });
 
-    xit('throw if there is no "calendars" field in the config file');
-    xit('not throw if the "calendars" field is not an array');
-    xit('throw if the "calendars" array is empty');
-    xit('throw if a calendar element doesn\'t have a uid');
-    xit('not throw if a calendar element doesn\'t have a name');
-    xit('not throw if a calendar element doesn\'t have a name');
-    xit('not throw if a calendar element doesn\'t have click functions');
+    it('throw if there is no "calendars" field in the config file', function () {
+      window.xConf.calendars = undefined;
+      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(/calendars/i);
+    });
+
+    it('throw if the "calendars" field is not an array', function () {
+      window.xConf.calendars = {};
+      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(/calendars/i);
+    });
+
+    it('throw if the "calendars" array is empty', function () {
+      window.xConf.calendars = [];
+      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(/calendars/i);
+    });
+
+    it('throw if a calendar element doesn\'t have a uid', function () {
+      window.xConf.calendars[0].uid = undefined;
+      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(/uid/);
+    });
+
+    it('not throw if a calendar element doesn\'t have a name', function () {
+      window.xConf.calendars[0].name = undefined;
+      expect(function () { xDivTester.callWith(xdiv); }).not.toThrowError();
+    });
+
+    it('not throw if a calendar element doesn\'t have a description', function () {
+      window.xConf.calendars[0].description = undefined;
+      expect(function () { xDivTester.callWith(xdiv); }).not.toThrowError();
+    });
+
+    it('not throw if a calendar element doesn\'t have click functions', function () {
+      window.xConf.calendars[0].titleClick = undefined;
+      window.xConf.calendars[0].dayHeaderClick = undefined;
+      window.xConf.calendars[0].eventClick = undefined;
+      expect(function () { xDivTester.callWith(xdiv); }).not.toThrowError();
+    });
+
   });
 
   describe('after initialised (with 1000px width) show', function () {
-    xit('as many calendars as elements in the "calendars" array in the config file');
-    xit('a datepicker');
-    xit('calendar titles');
-    xit('calendar subtitles');
-    xit('control buttons');
-    xit('a main header');
+
+    //Initialise calendar
+    window.xConf2 = clone(demoConf);
+    var xdiv = document.createElement('x-div');
+    xdiv.setAttribute('data-config', 'xConf2');
+    window.innerWidth = 1000;
+    xDivTester.callWith(xdiv);
+
+    it('as many calendars as elements in the "calendars" array in the config file', function () {
+      var NumberOfCalendars = xdiv.querySelector('.calendars').children.length;
+      expect(NumberOfCalendars).toEqual(demoConf.calendars.length);
+    });
+
+    it('a weekpicker', function () {
+      var weekpickers = xdiv.querySelectorAll('input[type=week]');
+      expect(weekpickers).toBeDefined();
+      expect(weekpickers.length).toEqual(1);
+    });
+
+    it('calendar titles according to the config object', function () {
+      var calendars = xdiv.querySelector('.calendars').children;
+
+      Array.prototype.forEach.call(calendars, function (cal, i) {
+        var title;
+        var titleContent;
+        title = cal.querySelector('.fl-row-title a');
+        expect(title).toBeDefined();
+        titleContent = title.innerText;
+        expect(titleContent).toEqual(window.xConf2.calendars[i].name);
+      });
+    });
+
+    it('calendar descriptions according to the config object', function () {
+      var calendars = xdiv.querySelector('.calendars').children;
+      for (var i = 0; i < calendars.length; i++) {
+        var description = calendars[i].querySelector('.fl-row-title em');
+        expect(description).toBeDefined();
+        var descriptionContent = description.innerText;
+        expect(descriptionContent).toEqual(window.xConf2.calendars[i].description);
+      }
+    });
+
+    it('control buttons', function () {
+      var dateControlBtns = xdiv.querySelectorAll('.fc-button-group button');
+      var refreshBtn = xdiv.querySelectorAll('.fc-button-group');
+      var btnsTotal = dateControlBtns.length + refreshBtn.length;
+      expect(btnsTotal).toEqual(4);
+    });
+
+    it('a main header', function () {
+      var mainHeaderElements = xdiv.querySelectorAll('.fc-toolbar h2');
+      expect(mainHeaderElements.length).toEqual(1);
+
+      //Check that there is text in there
+      expect(mainHeaderElements[0].innerText.length).toBeGreaterThan(0);
+    });
+
     xit('the same date in the datepicker and in the main header');
     xit('the loaded events that happen today');
   });
@@ -131,7 +235,7 @@ describe('The multi-calendar should', function () {
     xit('day headers');
     xit('events');
     xit('titles');
-    xit('subtitles');
+    xit('descriptions');
   });
 
   describe('not fire a config click event when clicking on', function () {

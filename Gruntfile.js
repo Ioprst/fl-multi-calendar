@@ -25,8 +25,7 @@ module.exports = function (grunt) {
       js: {
         src: [
           'bower_components/fullcalendar/dist/fullcalendar.js',
-          'src/throttle.js',
-          'src/debounce.js',
+          'src/utils/**/*.js',
           'src/loading.js',
           'src/autoReload.js',
           'src/eventLoader.js',
@@ -71,4 +70,5 @@ module.exports = function (grunt) {
 
   grunt.registerTask('default', ['jshint']);
   grunt.registerTask('build', ['jshint', 'concat', 'uglify']);
+  grunt.registerTask('test', ['phantomTester']);
 };

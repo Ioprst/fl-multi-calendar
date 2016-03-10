@@ -1,7 +1,7 @@
 /* globals moment, $ */
 
 //Module objects:
-/*globals  debounce, loading, dateController, eventLoader, autoReload*/
+/*globals  debounce, loading, dateController, eventLoader, autoReload, isURL*/
 
 function MultiCalendar(configurationObj) { //jshint ignore:line
   'use strict';
@@ -543,23 +543,29 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
   }
 
   function init(configurationObj) {
+    var config = configurationObj;
 
     //validate config object
-    if (typeof configurationObj !== 'object') {
+    if (typeof config !== 'object') {
       throw new Error('init(): Unable to create calendar. Config is not an object.');
-    } else if (!configurationObj.targetEl) {
+    } else if (!config.targetEl) {
       throw new Error('init(): No target element provided in config file.');
-    } else if (!configurationObj.loadUrl) {
+    } else if (!config.loadUrl) {
       throw new Error('init(): No "loadUrl" parameter profided in the config file.');
-    } else {
-      try {
-        decodeURI(configurationObj.loadUrl);
-      } catch (e) {
-        throw new Error('init(): Invalid URL in config file.');
-      }
+    } else if (!isURL(config.loadUrl)) {
+      throw new Error('init(): Invalid URL in config file.');
+    } else if (!Array.isArray(config.calendars) || !config.calendars.length) {
+      throw new Error('init(): No valid calendars array provided.');
     }
 
-    var targetEl = configurationObj.targetEl;
+    //Check that all calendars have a uid.
+    config.calendars.forEach(function (cal) {
+      if (!cal.uid) {
+        throw new Error('init(): No "uid" field in one or more elements in the "calendars" array.');
+      }
+    });
+
+    var targetEl = config.targetEl;
     if (typeof targetEl === 'string') {
       targetEl = document.querySelector(targetEl);
       if (!targetEl) {
@@ -567,7 +573,6 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
       }
     }
 
-    var config = configurationObj;
     var i;
 
     loading.on('show', configurationObj.loadingAnimationStart);

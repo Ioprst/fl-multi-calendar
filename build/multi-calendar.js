@@ -11895,7 +11895,45 @@ fcViews.agendaWeek = {
 ;;
 
 return FC; // export for Node/CommonJS
-});;function throttle(FuncDelay, callback) {
+});;function debounce(callback, FuncDelay) {
+  var delay = FuncDelay,
+    params,
+    context = this,
+    timeoutObj;
+
+  function timeoutFunc() {
+    if (timeoutObj) {
+      clearTimeout(timeoutObj);
+    }
+    callback.apply(context, params); //Call function with latest parameters
+  }
+  return function () {
+    params = arguments;
+    if (timeoutObj) {
+      clearTimeout(timeoutObj);
+    }
+    timeoutObj = setTimeout(timeoutFunc, delay);
+
+    //Now we return a function that allows the user to call the
+    //method immediately and cancel any timeouts.
+    //use it like myDebouncedFunc(arg1, arg2)("now!");
+    return function (now) {
+      if (now) {
+        timeoutFunc();
+      }
+    };
+  };
+}
+;function isURL(str) {
+  var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ // domain name
+  '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+  '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+  '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  return pattern.test(str);
+}
+;function throttle(FuncDelay, callback) {
   'use strict';
 
   var lastCall = +new Date();
@@ -11926,35 +11964,6 @@ return FC; // export for Node/CommonJS
       calledDuringDelay = true;
       lastCall = now + timeToEndOfDelay;
     } // Otherwise do nothing.
-  };
-}
-;function debounce(callback, FuncDelay) {
-  var delay = FuncDelay,
-    params,
-    context = this,
-    timeoutObj;
-
-  function timeoutFunc() {
-    if (timeoutObj) {
-      clearTimeout(timeoutObj);
-    }
-    callback.apply(context, params); //Call function with latest parameters
-  }
-  return function () {
-    params = arguments;
-    if (timeoutObj) {
-      clearTimeout(timeoutObj);
-    }
-    timeoutObj = setTimeout(timeoutFunc, delay);
-
-    //Now we return a function that allows the user to call the
-    //method immediately and cancel any timeouts.
-    //use it like myDebouncedFunc(arg1, arg2)("now!");
-    return function (now) {
-      if (now) {
-        timeoutFunc();
-      }
-    };
   };
 }
 ;
@@ -12322,7 +12331,7 @@ var dateController = (function () {
 ;/* globals moment, $ */
 
 //Module objects:
-/*globals  debounce, loading, dateController, eventLoader, autoReload*/
+/*globals  debounce, loading, dateController, eventLoader, autoReload, isURL*/
 
 function MultiCalendar(configurationObj) { //jshint ignore:line
   'use strict';
@@ -12864,23 +12873,29 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
   }
 
   function init(configurationObj) {
+    var config = configurationObj;
 
     //validate config object
-    if (typeof configurationObj !== 'object') {
+    if (typeof config !== 'object') {
       throw new Error('init(): Unable to create calendar. Config is not an object.');
-    } else if (!configurationObj.targetEl) {
+    } else if (!config.targetEl) {
       throw new Error('init(): No target element provided in config file.');
-    } else if (!configurationObj.loadUrl) {
+    } else if (!config.loadUrl) {
       throw new Error('init(): No "loadUrl" parameter profided in the config file.');
-    } else {
-      try {
-        decodeURI(configurationObj.loadUrl);
-      } catch (e) {
-        throw new Error('init(): Invalid URL in config file.');
-      }
+    } else if (!isURL(config.loadUrl)) {
+      throw new Error('init(): Invalid URL in config file.');
+    } else if (!Array.isArray(config.calendars) || !config.calendars.length) {
+      throw new Error('init(): No valid calendars array provided.');
     }
 
-    var targetEl = configurationObj.targetEl;
+    //Check that all calendars have a uid.
+    config.calendars.forEach(function (cal) {
+      if (!cal.uid) {
+        throw new Error('init(): No "uid" field in one or more elements in the "calendars" array.');
+      }
+    });
+
+    var targetEl = config.targetEl;
     if (typeof targetEl === 'string') {
       targetEl = document.querySelector(targetEl);
       if (!targetEl) {
@@ -12888,7 +12903,6 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
       }
     }
 
-    var config = configurationObj;
     var i;
 
     loading.on('show', configurationObj.loadingAnimationStart);
