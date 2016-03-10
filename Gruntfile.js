@@ -62,6 +62,11 @@ module.exports = function (grunt) {
     },
     dev: {
       doDev: {}
+    },
+    phantomTester: {
+      functional: {
+        src: ['tests/**/*.html'],
+      },
     }
   });
 
@@ -71,10 +76,10 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-phantom-batch-tester');
 
   grunt.registerTask('default', ['jshint']);
   grunt.registerTask('build', ['jshint', 'concat', 'uglify']);
-  grunt.registerTask('test', ['jasmine']);
-  // grunt.registerTask('dev', ['build', 'demo']);
+  grunt.registerTask('test', ['phantomTester']);
 
 };
