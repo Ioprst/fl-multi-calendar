@@ -1,4 +1,4 @@
-/*globals expect, xDivTester */
+/*globals expect, xDivTester, jasmine, moment, afterAll */
 
 'use strict'; //jshint ignore:line
 
@@ -44,7 +44,7 @@ var demoData = {
     tooltip: 'LOL'
   }, {
     id: '12345',
-    title: 'Today event',
+    title: 'Today event 1',
     start: convertDate(new Date()) + ' 09:00:00',
     end: convertDate(new Date()) + ' 18:00:00',
     tooltip: 'LOL'
@@ -57,7 +57,7 @@ var demoData = {
     tooltip: 'LOL'
   }, {
     id: '12345',
-    title: 'Today event',
+    title: 'Today event 2',
     start: convertDate(new Date()) + ' 09:00:00',
     end: convertDate(new Date()) + ' 18:00:00',
     tooltip: 'LOL'
@@ -100,12 +100,7 @@ describe('The multi-calendar should', function () {
     });
 
     afterEach(function () {
-      var els = document.querySelectorAll('x-div');
-      Array.prototype.forEach.call(els, function (el) {
-        el.remove();
-      });
-
-      els = null;
+      xdiv.remove();
       delete window.xConf;
     });
 
@@ -169,14 +164,37 @@ describe('The multi-calendar should', function () {
 
   });
 
-  describe('after initialised (with 1000px width) show', function () {
+  //Prepares an x-div for setup and teardown within a suite.
+  function setupAndTeardownMultiCalendar(config) {
+    //Begin to listen for http calls using the XMLHttpRequest function
+    jasmine.Ajax.install();
 
     //Initialise calendar
-    window.xConf2 = clone(demoConf);
+    window.xConf2 = config;
     var xdiv = document.createElement('x-div');
     xdiv.setAttribute('data-config', 'xConf2');
-    window.innerWidth = 1000;
+    document.body.appendChild(xdiv);
     xDivTester.callWith(xdiv);
+
+    //Respond request
+    var request = jasmine.Ajax.requests.mostRecent();
+    request.respondWith({
+      status: 200,
+      responseText: JSON.stringify(demoData),
+    });
+
+    afterAll(function () {
+      xdiv.remove();
+      delete window.xConf2;
+    });
+
+    return xdiv;
+  }
+
+  describe('after initialised (with 1000px width) show', function () {
+    window.innerWidth = 1000;
+    var newConfig = clone(demoConf);
+    var xdiv = setupAndTeardownMultiCalendar(newConfig);
 
     it('as many calendars as elements in the "calendars" array in the config file', function () {
       var NumberOfCalendars = xdiv.querySelector('.calendars').children.length;
@@ -184,7 +202,7 @@ describe('The multi-calendar should', function () {
     });
 
     it('a weekpicker', function () {
-      var weekpickers = xdiv.querySelectorAll('input[type=week]');
+      var weekpickers = xdiv.querySelectorAll('input');
       expect(weekpickers).toBeDefined();
       expect(weekpickers.length).toEqual(1);
     });
@@ -224,14 +242,57 @@ describe('The multi-calendar should', function () {
       expect(mainHeaderElements.length).toEqual(1);
 
       //Check that there is text in there
-      expect(mainHeaderElements[0].innerText.length).toBeGreaterThan(0);
+      //At least 13 letters "Jan 1 - 1 2016"
+      expect(mainHeaderElements[0].innerText.length).toBeGreaterThan(13);
     });
 
-    xit('the same date in the datepicker and in the main header');
-    xit('the loaded events that happen today');
+    it('the same date in the weekpicker and in the main header', function () {
+      var mainHeader = xdiv.querySelector('.fc-toolbar h2');
+      var mainTitle = mainHeader.innerText;
+      var weekPicker = xdiv.querySelector('input');
+
+      //Get date from main header
+      //match ["Mar 7 — 13 2016", "Mar ", "13 2016"] in "Mar 7 — 13 2016"
+      var titleMatch = mainTitle.match(/(\w+\s)+\w+\s\—\s(\w+\s\w+)$/) || [];
+      var titeDateStr = titleMatch[1] + titleMatch[2];
+      var titleDate = moment(titeDateStr);
+      var titleWeek = titleDate.format('YYYY') + '-W' + titleDate.format('WW');
+
+      var weekPickerWeek = weekPicker.value;
+      expect(titleWeek).toEqual(weekPickerWeek);
+    });
+
+    it('the loaded events that happen today', function () {
+      var calendars = xdiv.querySelector('.calendars').children;
+
+      Array.prototype.forEach.call(calendars, function (cal) {
+        var events = cal.querySelectorAll('.fc-event-container');
+
+        //The demostration data has only one event this week.
+        expect(events.length).toEqual(1);
+        var eventText = events[0].innerText.toLowerCase();
+        expect(eventText.indexOf('today')).toBeGreaterThan(-1);
+      });
+    });
   });
 
   describe('fire config click event when clicking on', function () {
+    //Create config object
+    var newConfig = clone(demoConf);
+
+    //Create spies and add them to config obj.
+    var eventClickSpy = jasmine.createSpy();
+    var dayHeaderClickSpy = jasmine.createSpy();
+    var titleClickSpy = jasmine.createSpy();
+
+    newConfig.calendars.forEach(function (cal) {
+      cal.eventClick = eventClickSpy;
+      cal.dayHeaderClick = dayHeaderClickSpy;
+      cal.titleClick = titleClickSpy;
+    });
+
+    var xdiv = setupAndTeardownMultiCalendar(newConfig);
+
     xit('day headers');
     xit('events');
     xit('titles');
@@ -277,7 +338,7 @@ describe('The multi-calendar should', function () {
     dateChangeChecks();
   });
 
-  describe('in a screen width of 1000px', function () {
+  describe('in a screen width of 600px', function () {
     xit('show in the day mode');
     xit('show weekpicker date by weeks');
     xit('show ony one day\'s date in the title');
