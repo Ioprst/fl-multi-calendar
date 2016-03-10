@@ -72,7 +72,6 @@ describe('The multi-calendar should', function () {
       delete window.xConf;
       window.xConf = Object.create(demoConf);
       xdiv = document.createElement('x-div');
-      xdiv.setAttribute('data-controller', '../../build/multi-calendar');
       xdiv.setAttribute('data-config', 'xConf');
     });
 
@@ -88,24 +87,24 @@ describe('The multi-calendar should', function () {
 
     it('throw if there is no config file', function () {
       xdiv.removeAttribute('data-config');
-      expect(function () { xDivTester.callWith(xdiv); }).toThrow();
+      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(/config/);
     });
 
     it('throw if the config file does not exist', function () {
       delete window.xConf;
-      expect(function () {  xDivTester.callWith(xdiv); }).toThrow();
+      expect(function () {  xDivTester.callWith(xdiv); }).toThrowError(/config/);
     });
 
     it('throw if there is no loadUrl in the config', function () {
       window.xConf = Object.create(demoConf);
       delete window.xConf.loadUrl;
-      expect(function () {  xDivTester.callWith(xdiv); }).toThrow();
+      expect(function () {  xDivTester.callWith(xdiv); }).toThrowError(/loadUrl/);
     });
 
     it('throw if loadUrl is invalid', function () {
       window.xConf.loadUrl = '```';
       xdiv.setAttribute('data-config', 'xConf');
-      expect(function () { xDivTester.callWith(xdiv); }).toThrow(new Error('Invalid url'));
+      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(Error);
     });
 
     xit('throw if there is no "calendars" field in the config file');

@@ -22,11 +22,11 @@ var xDivTester = (function xDivTester() {
         throw new Error('xDivTester.callWith(): Element provided is not a valid HTMLElement');
       }
 
-      if (!controller.length) {
+      if (!controller) {
         throw new Error('xDivTester.callWith(): No x-div controller initialised.');
       }
 
-      controller.call(el);
+      controller.call(el, el);
     }
   };
 }());

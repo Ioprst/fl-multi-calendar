@@ -543,10 +543,18 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
   }
 
   function init(configurationObj) {
+
+    //validate config object
     if (typeof configurationObj !== 'object') {
-      throw new Error('init(): Unable to create calendar. Invalid parameters');
+      throw new Error('init(): Unable to create calendar. Config is not an object');
     } else if (!configurationObj.targetEl) {
-      throw new Error('init(): No target element provided');
+      throw new Error('init(): No target element provided in config file.');
+    } else {
+      try {
+        decodeURI(configurationObj.loadUrl);
+      } catch (e) {
+        throw new Error('init(): Invalid URL in config file.');
+      }
     }
 
     var targetEl = configurationObj.targetEl;
