@@ -1,4 +1,4 @@
-/*globals expect, xDivTester, jasmine, moment, afterAll */
+/*globals expect, xDivTester, jasmine, moment, afterAll, beforeAll */
 
 'use strict'; //jshint ignore:line
 
@@ -165,14 +165,14 @@ describe('The multi-calendar should', function () {
   });
 
   //Prepares an x-div for setup and teardown within a suite.
-  function setupAndTeardownMultiCalendar(config) {
+  function setupCalendar(config, configName) {
     //Begin to listen for http calls using the XMLHttpRequest function
     jasmine.Ajax.install();
 
     //Initialise calendar
     window.xConf2 = config;
     var xdiv = document.createElement('x-div');
-    xdiv.setAttribute('data-config', 'xConf2');
+    xdiv.setAttribute('data-config', configName);
     document.body.appendChild(xdiv);
     xDivTester.callWith(xdiv);
 
@@ -183,18 +183,27 @@ describe('The multi-calendar should', function () {
       responseText: JSON.stringify(demoData),
     });
 
-    afterAll(function () {
-      xdiv.remove();
-      delete window.xConf2;
-    });
-
     return xdiv;
   }
 
+  function teardownCalendar(el, configName) {
+    el.remove();
+    delete window[configName];
+  }
+
   describe('after initialised (with 1000px width) show', function () {
-    window.innerWidth = 1000;
-    var newConfig = clone(demoConf);
-    var xdiv = setupAndTeardownMultiCalendar(newConfig);
+    var xdiv;
+    var configName = 'xConf2';
+
+    beforeAll(function () {
+      window.innerWidth = 1000;
+      var newConfig = clone(demoConf);
+      xdiv = setupCalendar(newConfig, configName);
+    });
+
+    afterAll(function () {
+      teardownCalendar(xdiv, configName);
+    });
 
     it('as many calendars as elements in the "calendars" array in the config file', function () {
       var NumberOfCalendars = xdiv.querySelector('.calendars').children.length;
@@ -291,7 +300,7 @@ describe('The multi-calendar should', function () {
       cal.titleClick = titleClickSpy;
     });
 
-    var xdiv = setupAndTeardownMultiCalendar(newConfig);
+    // var xdiv = setupAndTeardownMultiCalendar(newConfig);
 
     xit('day headers');
     xit('events');
@@ -305,7 +314,6 @@ describe('The multi-calendar should', function () {
     xit('the main calendar title');
     xit('any of the control buttons');
   });
-
 
   function dateChangeChecks() {
     describe('when changing the date', function () {
