@@ -11933,6 +11933,38 @@ return FC; // export for Node/CommonJS
   '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
   return pattern.test(str);
 }
+;/**
+ * Substitute an element by a copy with all of its attributes. Possibly
+ * a copy with a different tag name.
+ * @function replaceByEmptyCopy
+ * @param  {HTMLElement} el         Element to be substituted
+ * @param  {[String]} newTagName Optional new tagName.
+ * @return {HTMLElement}            The new element or null.
+ */
+function replaceByEmptyCopy(el, newTagName) {
+  'use strict';
+  if (!el || !el.parentNode) {
+    return null;
+  }
+
+  var newEl = document.createElement(newTagName || el.tagName);
+  var elAttributes = el.attributes;
+  var attrName;
+  var attrValue;
+  var i;
+
+  //Copy all attributes
+  for (i = 0; i < elAttributes.length; i++) {
+    attrName = elAttributes[i].nodeName;
+    attrValue = el.getAttribute(attrName);
+    newEl.setAttribute(attrName, attrValue);
+  }
+
+  //Switch original for new one
+  el.parentNode.insertBefore(newEl, el);
+  el.remove();
+  return newEl;
+}
 ;function throttle(FuncDelay, callback) {
   'use strict';
 
@@ -12331,7 +12363,8 @@ var dateController = (function () {
 ;/* globals moment, $ */
 
 //Module objects:
-/*globals  debounce, loading, dateController, eventLoader, autoReload, isURL*/
+/*globals  debounce, loading, dateController, eventLoader, autoReload, isURL,
+replaceByEmptyCopy, throttle*/
 
 function MultiCalendar(configurationObj) { //jshint ignore:line
   'use strict';
@@ -12343,38 +12376,6 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
   //GLOBALS
   var CALENDARCLASS = 'fl-multi-calendar';
   var _this = this;
-
-  /**
-   * Substitute an element by a copy with all of its attributes. Possibly
-   * a copy with a different tag name.
-   * @function replaceByEmptyCopy
-   * @param  {HTMLElement} el         Element to be substituted
-   * @param  {[String]} newTagName Optional new tagName.
-   * @return {HTMLElement}            The new element or null.
-   */
-  function replaceByEmptyCopy(el, newTagName) {
-    if (!el || !el.parentNode) {
-      return null;
-    }
-
-    var newEl = document.createElement(newTagName || el.tagName);
-    var elAttributes = el.attributes;
-    var attrName;
-    var attrValue;
-    var i;
-
-    //Copy all attributes
-    for (i = 0; i < elAttributes.length; i++) {
-      attrName = elAttributes[i].nodeName;
-      attrValue = el.getAttribute(attrName);
-      newEl.setAttribute(attrName, attrValue);
-    }
-
-    //Switch original for new one
-    el.parentNode.insertBefore(newEl, el);
-    el.remove();
-    return newEl;
-  }
 
   function getToggleWeekendText() {
     if ($.cookie('show-weekends') === 'true') {
@@ -12505,6 +12506,84 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
     dateController.setDate(view.start);
   }
 
+  var handleAllRenderedEvent = (function () {
+    var allUids = [];
+    var renderedUids = [];
+    var dateBeingRendered;
+    var calendarContainer;
+
+    function resetRendering() {
+      renderedUids = [];
+      dateBeingRendered = null;
+    }
+
+    function dispatchRenderedEvent() {
+      var ev = new Event('multiCalendarAllEventsRendered');
+      if (calendarContainer) {
+        calendarContainer.dispatchEvent(ev);
+      } else {
+        document.dispatchEvent(ev);
+      }
+    }
+
+    /**
+     * Registers that a view has been rendered and dispatches the
+     * "multiCalendarAllEventsRendered" if it was the last calendar to render
+     * @function addRenderedUid
+     * @param {String} uid
+     * @param {MomentJS} date
+     */
+    function addRenderedUid(uid, date) {
+      if (!dateBeingRendered) {
+        dateBeingRendered = date;
+      }
+
+      if (renderedUids.indexOf(uid) >= 0) {
+        console.warn('Calendar of uid ' + uid +
+            ' was rendered more than once before other calendars.');
+
+        //Mitigating measures to overcome error.
+        resetRendering();
+        dateBeingRendered = date;
+      }
+
+      if (dateBeingRendered.toString() !== date.toString()) {
+        console.warn('Calendars are loading out of sync. Calendar of uid ' +
+            uid + ' loaded ' + date.toString() + ' but was expected to load ' +
+            dateBeingRendered.toString());
+      }
+
+      renderedUids.push(uid);
+
+      // All views rendered
+      if (renderedUids.length === allUids.length) {
+        resetRendering();
+        dispatchRenderedEvent();
+      }
+    }
+
+    return {
+      for: function (el) {
+        if (!el) {
+          throw new Error('dispatchRenderedEvent(): No calendar calendar parameter provided.');
+        } else if (!el.dataset || !el.dataset.uid) {
+          throw new Error('dispatchRenderedEvent(): Invalid calendar element.');
+        }
+
+        var uid = el.dataset.uid;
+        allUids.push(uid);
+        return function (view) {
+          var date = view.start;
+          addRenderedUid(uid, date);
+        };
+      },
+
+      setRoot: function (el) {
+        calendarContainer = el;
+      }
+    };
+  }());
+
   /**
    * Initiate a fullCalendar object in the element provided.
    * @function initFullCalendar
@@ -12526,13 +12605,18 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
     // Listen to date changes.
     document.addEventListener('fullCalendarViewRender', function (e) {
       var newDate = e.detail;
-      $calendar.fullCalendar('gotoDate', newDate);
+      var calDate = $calendar.fullCalendar('getDate');
+
+      if (calDate.diff(newDate, 'days') !== 0) {
+        $calendar.fullCalendar('gotoDate', newDate);
+      }
     });
 
     // Listen to view changes.
     document.addEventListener('multiCalendarViewChange', function (e) {
       var viewType = e.detail;
       $calendar.fullCalendar('changeView', viewType);
+      console.log('view changed');
     });
 
     // init fullCalendar obj
@@ -12557,10 +12641,9 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
 
       //Callbacks
       eventClick: eventClick,
-
-      // eventAfterAllRender: createAdjustCalendarHeightFunction(calendarEl),
       eventRender: setEventTitle,
       viewRender: (controllerCalendar) ? viewRenderHandler : undefined,
+      eventAfterAllRender: handleAllRenderedEvent.for(calendarEl),
 
       //Called by "fullCalendar( 'refetchEvents' )"
       events: function (start, end, timezone, callback) {
@@ -12903,10 +12986,11 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
       }
     }
 
-    var i;
-
     loading.on('show', configurationObj.loadingAnimationStart);
     loading.on('hide', configurationObj.loadingAnimationStop);
+
+    //Tell handleAllRenderedEvent where to fire the multiCalendarAllRenderedEvent
+    handleAllRenderedEvent.setRoot(targetEl);
 
     //Create all HTML and set titleClick listener.
     var calendarEls = createCalendarsHTML(targetEl, config.calendars);
@@ -12918,6 +13002,7 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
     createReloadFunction(calendarEls);
 
     var uids = [];
+    var i;
     for (i = 0; i < config.calendars.length; i++) {
       uids.push(config.calendars[i].uid);
     }
