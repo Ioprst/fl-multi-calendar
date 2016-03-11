@@ -312,6 +312,21 @@ describe('The multi-calendar should', function () {
     });
   });
 
+  function addClickSpies(config) {
+    //Create spies and add them to config obj.
+    var eventClickSpy = jasmine.createSpy();
+    var dayHeaderClickSpy = jasmine.createSpy();
+    var titleClickSpy = jasmine.createSpy();
+
+    config.calendars.forEach(function (cal) {
+      cal.eventClick = eventClickSpy;
+      cal.dayHeaderClick = dayHeaderClickSpy;
+      cal.titleClick = titleClickSpy;
+    });
+
+    return [eventClickSpy, dayHeaderClickSpy, titleClickSpy];
+  }
+
   describe('fire config click event when clicking on', function () {
     var xdiv;
     var configName = 'xConf3';
@@ -320,17 +335,10 @@ describe('The multi-calendar should', function () {
     var titleClickSpy;
     beforeAll(function (done) {
       var newConfig = clone(demoConf);
-
-      //Create spies and add them to config obj.
-      eventClickSpy = jasmine.createSpy();
-      dayHeaderClickSpy = jasmine.createSpy();
-      titleClickSpy = jasmine.createSpy();
-
-      newConfig.calendars.forEach(function (cal) {
-        cal.eventClick = eventClickSpy;
-        cal.dayHeaderClick = dayHeaderClickSpy;
-        cal.titleClick = titleClickSpy;
-      });
+      var spies = addClickSpies(newConfig);
+      eventClickSpy = spies [0];
+      dayHeaderClickSpy = spies[1];
+      titleClickSpy = spies[2];
 
       xdiv = setupCalendar(newConfig, configName);
       xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
@@ -360,16 +368,112 @@ describe('The multi-calendar should', function () {
       done();
     });
 
-    xit('events');
-    xit('titles');
-    xit('descriptions');
+    it('events', function (done) {
+      var calendars = getCalendars(xdiv);
+      var events;
+      var clickCounter = 0;
+      calendars.forEach(function (cal) {
+        events = cal.querySelectorAll('.fc-title');
+        events = [].slice.call(events); //Convert HTMLCollection to array
+        events.forEach(function (event) {
+          event.click();
+          clickCounter++;
+        });
+      });
+
+      expect(eventClickSpy).toHaveBeenCalledTimes(clickCounter);
+      done();
+    });
+
+    it('titles', function (done) {
+      var calendars = getCalendars(xdiv);
+      var title;
+      var clickCounter = 0;
+      calendars.forEach(function (cal) {
+        title = cal.querySelector('.fl-row-title a');
+        title.click();
+        clickCounter++;
+      });
+
+      expect(titleClickSpy).toHaveBeenCalledTimes(clickCounter);
+      done();
+    });
+
+    it('descriptions', function (done) {
+      var calendars = getCalendars(xdiv);
+      var description;
+      var clickCounter = 0;
+      calendars.forEach(function (cal) {
+        description = cal.querySelector('.fl-row-title em');
+        description.click();
+        clickCounter++;
+      });
+
+      expect(titleClickSpy).toHaveBeenCalledTimes(clickCounter);
+      done();
+    });
   });
 
   describe('not fire a config click event when clicking on', function () {
-    xit('an empty day');
-    xit('outside of the calendar');
-    xit('the main calendar title');
-    xit('any of the control buttons');
+    //NOTE: Code repetition. gotta be replaced when I have some time.
+    var xdiv;
+    var configName = 'xConf4';
+    var spies;
+    beforeAll(function (done) {
+      var newConfig = clone(demoConf);
+      spies = addClickSpies(newConfig);
+      xdiv = setupCalendar(newConfig, configName);
+      xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
+        done(); //Make the specs async
+      });
+    });
+
+    afterAll(function (done) {
+      teardownCalendar(xdiv, configName);
+      done();
+    });
+
+    xit('an empty day', function () {
+      var days = xdiv.querySelectorAll('.fc-day');
+      days = [].slice.call(days);
+      days.forEach(function (day) {
+        day.click();
+      });
+
+      spies.forEach(function (spy) {
+        expect(spy).not.toHaveBeenCalled();
+      });
+    });
+
+    xit('outside of the calendar', function () {
+      document.body.click();
+      spies.forEach(function (spy) {
+        expect(spy).not.toHaveBeenCalled();
+      });
+    });
+
+    xit('the main calendar title', function () {
+      var mainTitle = xdiv.querySelector('.fc-toolbar h2');
+      mainTitle.click();
+
+      spies.forEach(function (spy) {
+        expect(spy).not.toHaveBeenCalled();
+      });
+    });
+
+    xit('any of the control buttons', function () {
+      var dateControlBtns = xdiv.querySelectorAll('.fc-button-group button');
+      var refreshBtns = xdiv.querySelectorAll('.fc-button-group');
+      var btns = [].concat.call(dateControlBtns, refreshBtns);
+
+      btns.forEach(function (btn) {
+        btn.click();
+      });
+
+      spies.forEach(function (spy) {
+        expect(spy).not.toHaveBeenCalled();
+      });
+    });
   });
 
   function dateChangeChecks() {
