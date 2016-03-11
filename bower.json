@@ -25,6 +25,10 @@
     "x-div": "~1.0.2",
     "fullcalendar": "~2.6.1",
     "bootstrap": "~3.3.6",
-    "webcomponentsjs": "~0.7.21"
+    "webcomponentsjs": "~0.7.21",
+    "moment": "momentjs#~2.12.0",
+    "jquery": "~2.2.1",
+    "jquery.cookie": "~1.4.1",
+    "df-visible": "~1.2.0"
   }
 }
