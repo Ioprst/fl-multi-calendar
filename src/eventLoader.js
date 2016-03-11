@@ -4,7 +4,7 @@
 /*globals loading*/
 
 // eventLoader takes care of loading stuff from the server.
-eventLoader = (function eventLoader() {
+var eventLoader = (function eventLoader() {
   'use strict';
 
   //Private vars

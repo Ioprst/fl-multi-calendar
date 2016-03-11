@@ -29,13 +29,14 @@ module.exports = function (grunt) {
         },
         src: [
           'bower_components/fullcalendar/dist/fullcalendar.js',
+          'src/controller-head.js',
           'src/utils/**/*.js',
           'src/loading.js',
           'src/autoReload.js',
           'src/eventLoader.js',
           'src/dateController.js',
           'src/multi-calendar.js',
-          'src/controller.js',
+          'src/controller-tail.js',
         ],
         dest: 'build/multi-calendar.js',
       },
@@ -90,6 +91,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-phantom-batch-tester');
 
   grunt.registerTask('default', ['jshint']);
-  grunt.registerTask('build', ['jshint', 'concat', 'uglify']);
+  grunt.registerTask('build', ['concat', 'uglify']);
   grunt.registerTask('test', ['jshint', 'jasmine']);
 };

@@ -11896,7 +11896,11 @@ fcViews.agendaWeek = {
 ;;
 
 return FC; // export for Node/CommonJS
-});;function debounce(callback, FuncDelay) {
+});;xController(function (xDivEl) {
+  'use strict';
+
+  //All of the module's code goes in here.
+;function debounce(callback, FuncDelay) {
   var delay = FuncDelay,
     params,
     context = this,
@@ -12084,7 +12088,7 @@ var autoReload = (function () {
 /*globals loading*/
 
 // eventLoader takes care of loading stuff from the server.
-eventLoader = (function eventLoader() {
+var eventLoader = (function eventLoader() {
   'use strict';
 
   //Private vars
@@ -13043,10 +13047,9 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
   init(configurationObj);
   this.init = init;
 }
-;/*globals xController, MultiCalendar*/
+;
+  //... all of the module's code is above but execution begins here.
 
-xController(function (xDivEl) {
-  'use strict';
   var config = window[xDivEl.dataset.config];
   if (typeof config !== 'object') {
     throw new Error('x-div multiCalendar: No configuration object provided.');
