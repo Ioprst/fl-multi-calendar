@@ -433,7 +433,7 @@ describe('The multi-calendar should', function () {
       done();
     });
 
-    xit('an empty day', function () {
+    it('an empty day', function () {
       var days = xdiv.querySelectorAll('.fc-day');
       days = [].slice.call(days);
       days.forEach(function (day) {
@@ -445,14 +445,14 @@ describe('The multi-calendar should', function () {
       });
     });
 
-    xit('outside of the calendar', function () {
+    it('outside of the calendar', function () {
       document.body.click();
       spies.forEach(function (spy) {
         expect(spy).not.toHaveBeenCalled();
       });
     });
 
-    xit('the main calendar title', function () {
+    it('the main calendar title', function () {
       var mainTitle = xdiv.querySelector('.fc-toolbar h2');
       mainTitle.click();
 
@@ -461,11 +461,13 @@ describe('The multi-calendar should', function () {
       });
     });
 
-    xit('any of the control buttons', function () {
+    it('any of the control buttons', function () {
       var dateControlBtns = xdiv.querySelectorAll('.fc-button-group button');
       var refreshBtns = xdiv.querySelectorAll('.fc-button-group');
-      var btns = [].concat.call(dateControlBtns, refreshBtns);
+      dateControlBtns = [].slice.call(dateControlBtns);
+      refreshBtns = [].slice.call(refreshBtns);
 
+      var btns = dateControlBtns.concat(refreshBtns);
       btns.forEach(function (btn) {
         btn.click();
       });
