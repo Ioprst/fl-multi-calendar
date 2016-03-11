@@ -5,6 +5,7 @@ module.exports = function (grunt) {
       files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
       options: {
         globals: {},
+        ignores: ['src/controller*.js'],
       },
     },
     uglify: {
@@ -29,14 +30,14 @@ module.exports = function (grunt) {
         },
         src: [
           'bower_components/fullcalendar/dist/fullcalendar.js',
-          'src/controller-head.js',
+          'src/controller-head.js', //Module start
           'src/utils/**/*.js',
           'src/loading.js',
           'src/autoReload.js',
           'src/eventLoader.js',
           'src/dateController.js',
           'src/multi-calendar.js',
-          'src/controller-tail.js',
+          'src/controller-tail.js', //Module end
         ],
         dest: 'build/multi-calendar.js',
       },
@@ -50,7 +51,7 @@ module.exports = function (grunt) {
     },
     watch: {
       source: {
-        files: ['src/*.*'],
+        files: ['src/*.*', 'Gruntfile.js'],
         tasks: ['build'],
         options: {
           spawn: false,
@@ -91,6 +92,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-phantom-batch-tester');
 
   grunt.registerTask('default', ['jshint']);
-  grunt.registerTask('build', ['concat', 'uglify']);
+  grunt.registerTask('build', ['jshint', 'concat', 'uglify']);
   grunt.registerTask('test', ['jshint', 'jasmine']);
 };
