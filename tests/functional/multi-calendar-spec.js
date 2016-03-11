@@ -503,16 +503,86 @@ describe('The multi-calendar should', function () {
   }
 
   describe('in a screen width of 1000px', function () {
-    xit('show in the week mode');
-    xit('show weekpicker date by weeks');
-    xit('show title in day range');
+    var xdiv;
+    var configName = 'xConf5';
+    beforeAll(function (done) {
+      var newConfig = clone(demoConf);
+      window.innerWidth = 1000;
+      xdiv = setupCalendar(newConfig, configName);
+      xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
+        done(); //Make the specs async
+      });
+    });
+
+    afterAll(function (done) {
+      teardownCalendar(xdiv, configName);
+      done();
+    });
+
+    it('show in the week mode', function () {
+      var calendars = getCalendars(xdiv);
+      var daysShowing;
+      calendars.forEach(function (cal) {
+        daysShowing = cal.querySelectorAll('.fc-day');
+        expect(daysShowing.length).toBeGreaterThan(4);
+      });
+    });
+
+    it('show weekpicker date by weeks', function () {
+      var weekpicker = xdiv.querySelector('input[type=week]');
+      expect(weekpicker).toBeDefined();
+    });
+
+    it('show title in day range', function () {
+      var title = xdiv.querySelector('.fc-toolbar h2');
+      var titleText = title.innerText;
+
+      //If there is a dash, then there is a date range.
+      expect(titleText.indexOf('—') >= 0 || titleText.indexOf('-') >= 0).toBeTruthy();
+    });
+
     dateChangeChecks();
   });
 
   describe('in a screen width of 600px', function () {
-    xit('show in the day mode');
-    xit('show weekpicker date by weeks');
-    xit('show ony one day\'s date in the title');
+    var xdiv;
+    var configName = 'xConf5';
+    beforeAll(function (done) {
+      var newConfig = clone(demoConf);
+      window.innerWidth = 600;
+      xdiv = setupCalendar(newConfig, configName);
+      xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
+        done(); //Make the specs async
+      });
+    });
+
+    afterAll(function (done) {
+      teardownCalendar(xdiv, configName);
+      done();
+    });
+
+    it('show in the day mode', function () {
+      var calendars = getCalendars(xdiv);
+      var daysShowing;
+      calendars.forEach(function (cal) {
+        daysShowing = cal.querySelectorAll('.fc-day');
+        expect(daysShowing.length).toEqual(1);
+      });
+    });
+
+    it('show weekpicker date in days', function () {
+      var weekpicker = xdiv.querySelector('input[type=date]');
+      expect(weekpicker).toBeDefined();
+    });
+
+    it('show ony one day\'s date in the title', function () {
+      var title = xdiv.querySelector('.fc-toolbar h2');
+      var titleText = title.innerText;
+
+      //If there is a dash, then there is a date range.
+      expect(titleText.indexOf('—') >= 0 || titleText.indexOf('-') >= 0).toBeFalsy();
+    });
+
     dateChangeChecks();
   });
 });
