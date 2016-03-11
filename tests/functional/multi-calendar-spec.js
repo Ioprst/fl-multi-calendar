@@ -100,6 +100,155 @@ function getCalendars(xdiv) {
   return [].slice.call(htmlCol);
 }
 
+//Testing for date changes
+function dateChangeMatches(globals) {
+  it('have changed the main title', function () {
+    var xdiv = globals.xdiv;
+    var newCalDate = globals.newCalDate;
+    var title = xdiv.querySelector('.fc-toolbar h2').innerText;
+
+    //Check for the year
+    var year = newCalDate.format('YYYY');
+    expect(title.indexOf(year)).toBeGreaterThan(-1);
+
+    //Check for the day
+    var day = newCalDate.format('D');
+    expect(title.indexOf(day)).toBeGreaterThan(-1);
+
+    //Check for the month
+    var month = newCalDate.format('MMM').toLowerCase();
+    expect(title.toLowerCase().indexOf(month)).toBeGreaterThan(-1);
+  });
+
+  it('have changed the url hash', function () {
+    var newCalDate = globals.newCalDate;
+    var newDateStr = newCalDate.format('YYYY-MM-DD');
+    expect(location.hash.indexOf(newDateStr)).toBeGreaterThan(-1);
+  });
+
+  it('have changed the dates shown in the calendar', function () {
+    var xdiv = globals.xdiv;
+    var newCalDate = globals.newCalDate;
+    var calendars = getCalendars(xdiv);
+
+    var newDateDayStr;
+    if (xdiv.querySelector('input[type=week]')) {
+      newDateDayStr = newCalDate.format('D');
+    } else {
+      //We are expecting a weekday to be showing
+      newDateDayStr = newCalDate.format('dddd').toLowerCase();
+    }
+
+    var dayHeaders;
+    var matchingHeaders = 0;
+    dayHeaders = xdiv.querySelectorAll('.fc-day-header');
+    dayHeaders = [].slice.call(dayHeaders);
+    dayHeaders.forEach(function (header) {
+      if (header.innerText.toLowerCase().indexOf(newDateDayStr) >= 0) {
+        matchingHeaders++;
+      }
+    });
+
+    expect(matchingHeaders === calendars.length).toBe(true);
+  });
+
+  it('have changed the dates of all calendars to the same value', function () {
+    var xdiv = globals.xdiv;
+    var calendars = getCalendars(xdiv);
+    var dayHeaders = xdiv.querySelectorAll('.fc-day-header');
+    var daysBeingDisplayed = dayHeaders.length / calendars.length;
+    var day;
+    var i;
+    var j;
+    for (i = 0; i < daysBeingDisplayed; i++) {
+      day = dayHeaders[i].innerText;
+      for (j = 0; j < calendars.length; j++) {
+        expect(calendars[j].querySelectorAll('.fc-day-header')[i].innerText).toEqual(day);
+      }
+    }
+  });
+
+  it('show the events happening in the new date', function (done) {
+    var xdiv = globals.xdiv;
+    var calendars = getCalendars(xdiv);
+
+    calendars.forEach(function (cal) {
+      var events = cal.querySelectorAll('.fc-event-container');
+
+      //The demostration data has only one event this week.
+      expect(events.length).toEqual(1);
+      var eventText = events[0].innerText.toLowerCase();
+      expect(eventText.indexOf('following week')).toBeGreaterThan(-1);
+    });
+
+    done();
+  });
+}
+
+function whenChangingDates(globals) {
+  describe('when changing the date', function () {
+    describe('via the weekpicker', function () {
+      beforeAll(function (done) {
+        var xdiv = globals.xdiv;
+        xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
+          done(); //Make the specs async
+        });
+
+        var format;
+        var weekpicker = xdiv.querySelector('input[type=date]');
+        if (weekpicker) {
+          format = 'YYYY-MM-DD';
+          globals.oldCalDate = moment(weekpicker.value, format);
+          globals.newCalDate = moment(globals.oldCalDate).add(7, 'days');
+          weekpicker.value = globals.newCalDate.format(format);
+        } else {
+          weekpicker = xdiv.querySelector('input[type=week]');
+          globals.oldCalDate = moment(weekpicker.value, 'YYYY-W');
+          globals.newCalDate = moment(globals.oldCalDate).add(7, 'days');
+          weekpicker.value = globals.newCalDate.format('YYYY') + '-W' + globals.newCalDate.format('W');
+        }
+
+        jasmine.Ajax.uninstall();
+        jasmine.Ajax.install();
+
+        var ev = new Event('change');
+        weekpicker.dispatchEvent(ev);
+
+        //Respond request
+        var request = jasmine.Ajax.requests.mostRecent();
+        request.respondWith({
+          status: 200,
+          responseText: JSON.stringify(demoData),
+        });
+      });
+
+      afterAll(function () {
+        jasmine.Ajax.uninstall();
+      });
+
+      dateChangeMatches(globals);
+    });
+
+    describe('via the left arrow', function () {
+      jasmine.Ajax.uninstall();
+      jasmine.Ajax.install();
+
+      //Respond request
+      var request = jasmine.Ajax.requests.mostRecent();
+      request.respondWith({
+        status: 200,
+        responseText: JSON.stringify(demoData),
+      });
+      dateChangeMatches(dateHolder);
+    });
+
+    describe('via the right arrow', function () {
+      dateChangeMatches(dateHolder);
+    });
+  });
+
+}
+
 describe('The multi-calendar should', function () {
   describe('when initialised', function () {
     var xdiv;
@@ -503,12 +652,14 @@ describe('The multi-calendar should', function () {
   });
 
   describe('in a screen width of 1000px', function () {
+    var wrapperObj = {};
     var xdiv;
     var configName = 'xConf5';
     beforeAll(function (done) {
       var newConfig = clone(demoConf);
       window.innerWidth = 1000;
-      xdiv = setupCalendar(newConfig, configName);
+      wrapperObj.xdiv = setupCalendar(newConfig, configName);
+      xdiv = wrapperObj.xdiv;
       xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
         done(); //Make the specs async
       });
@@ -526,6 +677,7 @@ describe('The multi-calendar should', function () {
         daysShowing = cal.querySelectorAll('.fc-day');
         expect(daysShowing.length).toBeGreaterThan(4);
       });
+
       done();
     });
 
@@ -544,149 +696,28 @@ describe('The multi-calendar should', function () {
       done();
     });
 
-    describe('when changing the date', function () {
-      var oldCalDate;
-      var newCalDate;
-
-      function dateChangeMatches() {
-        it('have changed the main title', function () {
-          var title = xdiv.querySelector('.fc-toolbar h2').innerText;
-
-          //Check for the year
-          var year = newCalDate.format('YYYY');
-          expect(title.indexOf(year)).toBeGreaterThan(-1);
-
-          //Check for the day
-          var day = newCalDate.format('D');
-          expect(title.indexOf(day)).toBeGreaterThan(-1);
-
-          //Check for the month
-          var month = newCalDate.format('MMM').toLowerCase();
-          expect(title.toLowerCase().indexOf(month)).toBeGreaterThan(-1);
-        });
-
-        it('have changed the url hash', function () {
-          var newDateStr = newCalDate.format('YYYY-MM-DD');
-          expect(location.hash.indexOf(newDateStr)).toBeGreaterThan(-1);
-        });
-
-        it('have changed the dates shown in the calendar', function () {
-          var calendars = getCalendars(xdiv);
-          var newDateDayStr = newCalDate.format('D');
-          var dayHeaders;
-          var matchingHeaders = 0;
-          dayHeaders = xdiv.querySelectorAll('.fc-day-header');
-          dayHeaders = [].slice.call(dayHeaders);
-          dayHeaders.forEach(function (header) {
-            if (header.innerText.indexOf(newDateDayStr) >= 0) {
-              matchingHeaders++;
-            }
-          });
-
-          expect(matchingHeaders === calendars.length).toBe(true);
-        });
-
-        it('have changed the dates of all calendars to the same value', function () {
-          var calendars = getCalendars(xdiv);
-          var dayHeaders = xdiv.querySelectorAll('.fc-day-header');
-          var daysBeingDisplayed = dayHeaders.length / calendars.length;
-          var day;
-          var i;
-          var j;
-          for (i = 0; i < daysBeingDisplayed; i++) {
-            day = dayHeaders[i].innerText;
-            for (j = 0; j < calendars.length; j++) {
-              expect(calendars[j].querySelectorAll('.fc-day-header')[i].innerText).toEqual(day);
-            }
-          }
-        });
-
-        it('show the events happening in the new date', function (done) {
-          var calendars = getCalendars(xdiv);
-
-          calendars.forEach(function (cal) {
-            var events = cal.querySelectorAll('.fc-event-container');
-
-            //The demostration data has only one event this week.
-            expect(events.length).toEqual(1);
-            var eventText = events[0].innerText.toLowerCase();
-            expect(eventText.indexOf('following week')).toBeGreaterThan(-1);
-          });
-
-          done();
-        });
-      }
-
-      describe('via the weekpicker', function () {
-        beforeAll(function (done) {
-          xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
-            done(); //Make the specs async
-          });
-
-          var format;
-          var weekpicker = xdiv.querySelector('input[type=date]');
-          if (weekpicker) {
-            format = 'YYYY-MM-DD';
-            oldCalDate = moment(weekpicker.value, format);
-            newCalDate = moment(oldCalDate).add(7, 'days');
-            weekpicker.value = newCalDate.format(format);
-          } else {
-            weekpicker = xdiv.querySelector('input[type=week]');
-            oldCalDate = moment(weekpicker.value, 'YYYY-W');
-            newCalDate = moment(oldCalDate).add(7, 'days');
-            weekpicker.value = newCalDate.format('YYYY') + '-W' + newCalDate.format('W');
-          }
-
-          jasmine.Ajax.uninstall();
-          jasmine.Ajax.install();
-
-          var ev = new Event('change');
-          weekpicker.dispatchEvent(ev);
-
-          //Respond request
-          var request = jasmine.Ajax.requests.mostRecent();
-          request.respondWith({
-            status: 200,
-            responseText: JSON.stringify(demoData),
-          });
-        });
-
-        afterAll(function () {
-          jasmine.Ajax.uninstall();
-        });
-
-        dateChangeMatches();
-      });
-
-      describe('via the left arrow', function () {
-        dateChangeMatches();
-      });
-
-      describe('via the right arrow', function () {
-        dateChangeMatches();
-      });
-    });
+    whenChangingDates(wrapperObj);
   });
 
   describe('in a screen width of 600px', function () {
-    var xdiv;
+    var wrapperObj = {};
     var configName = 'xConf5';
     beforeAll(function (done) {
       var newConfig = clone(demoConf);
       window.innerWidth = 600;
-      xdiv = setupCalendar(newConfig, configName);
-      xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
+      wrapperObj.xdiv = setupCalendar(newConfig, configName);
+      wrapperObj.xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
         done(); //Make the specs async
       });
     });
 
     afterAll(function (done) {
-      teardownCalendar(xdiv, configName);
+      teardownCalendar(wrapperObj.xdiv, configName);
       done();
     });
 
     it('show in the day mode', function () {
-      var calendars = getCalendars(xdiv);
+      var calendars = getCalendars(wrapperObj.xdiv);
       var daysShowing;
       calendars.forEach(function (cal) {
         daysShowing = cal.querySelectorAll('.fc-day');
@@ -695,143 +726,18 @@ describe('The multi-calendar should', function () {
     });
 
     it('show weekpicker date in days', function () {
-      var weekpicker = xdiv.querySelector('input[type=date]');
+      var weekpicker = wrapperObj.xdiv.querySelector('input[type=date]');
       expect(weekpicker).toBeDefined();
     });
 
     it('show ony one day\'s date in the title', function () {
-      var title = xdiv.querySelector('.fc-toolbar h2');
+      var title = wrapperObj.xdiv.querySelector('.fc-toolbar h2');
       var titleText = title.innerText;
 
       //If there is a dash, then there is a date range.
       expect(titleText.indexOf('—') >= 0 || titleText.indexOf('-') >= 0).toBeFalsy();
     });
 
-
-    describe('when changing the date', function () {
-      var oldCalDate;
-      var newCalDate;
-
-      function dateChangeMatches() {
-        it('have changed the main title', function () {
-          var title = xdiv.querySelector('.fc-toolbar h2').innerText;
-
-          //Check for the year
-          var year = newCalDate.format('YYYY');
-          expect(title.indexOf(year)).toBeGreaterThan(-1);
-
-          //Check for the day
-          var day = newCalDate.format('D');
-          expect(title.indexOf(day)).toBeGreaterThan(-1);
-
-          //Check for the month
-          var month = newCalDate.format('MMM').toLowerCase();
-          expect(title.toLowerCase().indexOf(month)).toBeGreaterThan(-1);
-        });
-
-        it('have changed the url hash', function () {
-          var newDateStr = newCalDate.format('YYYY-MM-DD');
-          expect(location.hash.indexOf(newDateStr)).toBeGreaterThan(-1);
-        });
-
-        it('have changed the dates shown in the calendar', function () {
-          var calendars = getCalendars(xdiv);
-
-          //We are expecting a weekday to be showing
-          var newDateDayStr = newCalDate.format('dddd').toLowerCase();
-          var dayHeaders;
-          var matchingHeaders = 0;
-          dayHeaders = xdiv.querySelectorAll('.fc-day-header');
-          dayHeaders = [].slice.call(dayHeaders);
-          dayHeaders.forEach(function (header) {
-            if (header.innerText.toLowerCase().indexOf(newDateDayStr) >= 0) {
-              matchingHeaders++;
-            }
-          });
-
-          expect(matchingHeaders === calendars.length).toBe(true);
-        });
-
-        it('have changed the dates of all calendars to the same value', function () {
-          var calendars = getCalendars(xdiv);
-          var dayHeaders = xdiv.querySelectorAll('.fc-day-header');
-          var daysBeingDisplayed = dayHeaders.length / calendars.length;
-          var day;
-          var i;
-          var j;
-          for (i = 0; i < daysBeingDisplayed; i++) {
-            day = dayHeaders[i].innerText;
-            for (j = 0; j < calendars.length; j++) {
-              expect(calendars[j].querySelectorAll('.fc-day-header')[i].innerText).toEqual(day);
-            }
-          }
-        });
-
-        it('show the events happening in the new date', function (done) {
-          var calendars = getCalendars(xdiv);
-
-          calendars.forEach(function (cal) {
-            var events = cal.querySelectorAll('.fc-event-container');
-
-            //The demostration data has only one event this week.
-            expect(events.length).toEqual(1);
-            var eventText = events[0].innerText.toLowerCase();
-            expect(eventText.indexOf('following week')).toBeGreaterThan(-1);
-          });
-
-          done();
-        });
-      }
-
-      describe('via the weekpicker', function () {
-        beforeAll(function (done) {
-          xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
-            done(); //Make the specs async
-          });
-
-          var format;
-          var weekpicker = xdiv.querySelector('input[type=date]');
-          if (weekpicker) {
-            format = 'YYYY-MM-DD';
-            oldCalDate = moment(weekpicker.value, format);
-            newCalDate = moment(oldCalDate).add(7, 'days');
-            weekpicker.value = newCalDate.format(format);
-          } else {
-            weekpicker = xdiv.querySelector('input[type=week]');
-            oldCalDate = moment(weekpicker.value, 'YYYY-W');
-            newCalDate = moment(oldCalDate).add(7, 'days');
-            weekpicker.value = newCalDate.format('YYYY') + '-W' + newCalDate.format('W');
-          }
-
-          jasmine.Ajax.uninstall();
-          jasmine.Ajax.install();
-
-          var ev = new Event('change');
-          weekpicker.dispatchEvent(ev);
-
-          //Respond request
-          var request = jasmine.Ajax.requests.mostRecent();
-          request.respondWith({
-            status: 200,
-            responseText: JSON.stringify(demoData),
-          });
-        });
-
-        afterAll(function () {
-          jasmine.Ajax.uninstall();
-        });
-
-        dateChangeMatches();
-      });
-
-      describe('via the left arrow', function () {
-        dateChangeMatches();
-      });
-
-      describe('via the right arrow', function () {
-        dateChangeMatches();
-      });
-    });
-
+    whenChangingDates(wrapperObj);
   });
 });
