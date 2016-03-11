@@ -148,7 +148,7 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
    * Track calendars and dispatch and appropriate event when all of them have
    * finished their rendering.
    */
-  var handleAllRenderedEvent = (function () {
+  var handleAllRenderedEvents = (function () {
     var allUids = [];
     var renderedUids = [];
     var dateBeingRendered;
@@ -285,7 +285,7 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
       eventClick: eventClick,
       eventRender: setEventTitle,
       viewRender: (controllerCalendar) ? viewRenderHandler : undefined,
-      eventAfterAllRender: handleAllRenderedEvent.for(calendarEl),
+      eventAfterAllRender: handleAllRenderedEvents.for(calendarEl),
 
       //Called by "fullCalendar( 'refetchEvents' )"
       events: function (start, end, timezone, callback) {
@@ -631,8 +631,8 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
     loading.on('show', configurationObj.loadingAnimationStart);
     loading.on('hide', configurationObj.loadingAnimationStop);
 
-    //Tell handleAllRenderedEvent where to fire the multiCalendarAllRenderedEvent
-    handleAllRenderedEvent.setRoot(targetEl);
+    //Tell handleAllRenderedEvents where to fire the multiCalendarAllRenderedEvent
+    handleAllRenderedEvents.setRoot(targetEl);
 
     //Create all HTML and set titleClick listener.
     var calendarEls = createCalendarsHTML(targetEl, config.calendars);

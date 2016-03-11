@@ -50,6 +50,12 @@ var myConfig = {
 
 ```
 
+## Events
+ - `multiCalendarAllEventsRendered` - Triggered when all calendars finished
+ loading and displaying their events. It is also triggered on calendar reload.
+
+The calendars also emit all events from `fullCalendar`.
+
 ## Tasks
 
 ### Demo
