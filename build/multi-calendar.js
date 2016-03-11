@@ -12528,6 +12528,7 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
 
     function dispatchRenderedEvent() {
       var ev = new Event('multiCalendarAllEventsRendered');
+      console.log('Dispatched all rendered');
       if (calendarContainer) {
         calendarContainer.dispatchEvent(ev);
       } else {

@@ -26,15 +26,6 @@ function clone(obj) {
   return temp;
 }
 
-// Make date into YYYY-MM-DDformat
-function convertDate(d) {
-  function pad(s) {
-    return (s < 10) ? '0' + s : s;
-  }
-
-  return [pad(d.getFullYear()), pad(d.getMonth() + 1), d.getDate()].join('-');
-}
-
 var demoData = {
   12345: [{
     id: '12345',
@@ -45,9 +36,15 @@ var demoData = {
   }, {
     id: '12345',
     title: 'Today event 1',
-    start: convertDate(new Date()) + ' 09:00:00',
-    end: convertDate(new Date()) + ' 18:00:00',
+    start: moment().format('YYYY-MM-DD') + ' 09:00:00',
+    end: moment().format('YYYY-MM-DD') + ' 18:00:00',
     tooltip: 'LOL'
+  }, {
+    id: '12345',
+    title: 'Following week 1',
+    start: moment().add(7, 'days').format('YYYY-MM-DD') + ' 09:00:00',
+    end: moment().add(7, 'days').format('YYYY-MM-DD') + ' 18:00:00',
+    tooltip: 'LOOOOL'
   }],
   7899: [{
     id: '23456',
@@ -58,34 +55,39 @@ var demoData = {
   }, {
     id: '12345',
     title: 'Today event 2',
-    start: convertDate(new Date()) + ' 09:00:00',
-    end: convertDate(new Date()) + ' 18:00:00',
+    start: moment().format('YYYY-MM-DD') + ' 09:00:00',
+    end: moment().format('YYYY-MM-DD') + ' 18:00:00',
     tooltip: 'LOL'
+  }, {
+    id: '12345',
+    title: 'Following week 2',
+    start: moment().add(7, 'days').format('YYYY-MM-DD') + ' 09:00:00',
+    end: moment().add(7, 'days').format('YYYY-MM-DD') + ' 18:00:00',
+    tooltip: 'LOOOOL'
   }]
 };
 
 var demoConf = {
   loadUrl: 'http://localhost:5000',
   calendars: [{
-      name: 'Karl Marx',
-      uid: '12345',
-      description: 'Software Developer', //optional
-      titleClick: function () {}, //optional
+    name: 'Karl Marx',
+    uid: '12345',
+    description: 'Software Developer', //optional
+    titleClick: function () {}, //optional
 
-      dayHeaderClick: function () {},
+    dayHeaderClick: function () {},
 
-      eventClick: function () {},
-    }, {
-      name: 'Friedrich Hegel',
-      uid: '7899',
-      description: 'HR Manager', //optional
-      titleClick: function () {},
+    eventClick: function () {},
+  }, {
+    name: 'Friedrich Hegel',
+    uid: '7899',
+    description: 'HR Manager', //optional
+    titleClick: function () {},
 
-      dayHeaderClick: function () {},
+    dayHeaderClick: function () {},
 
-      eventClick: function () {},
-    },
-  ],
+    eventClick: function () {},
+  }, ],
 };
 
 /**
@@ -116,60 +118,82 @@ describe('The multi-calendar should', function () {
 
     it('throw if there is no config file', function () {
       xdiv.removeAttribute('data-config');
-      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(/config/i);
+      expect(function () {
+        xDivTester.callWith(xdiv);
+      }).toThrowError(/config/i);
     });
 
     it('throw if the config file does not exist', function () {
       delete window.xConf;
-      expect(function () {  xDivTester.callWith(xdiv); }).toThrowError(/config/i);
+      expect(function () {
+        xDivTester.callWith(xdiv);
+      }).toThrowError(/config/i);
     });
 
     it('throw if there is no loadUrl in the config', function () {
       window.xConf = Object.create(demoConf);
       window.xConf.loadUrl = undefined;
-      expect(function () {  xDivTester.callWith(xdiv); }).toThrowError(/url/i);
+      expect(function () {
+        xDivTester.callWith(xdiv);
+      }).toThrowError(/url/i);
     });
 
     it('throw if loadUrl is invalid', function () {
       window.xConf.loadUrl = '```';
-      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(/url/i);
+      expect(function () {
+        xDivTester.callWith(xdiv);
+      }).toThrowError(/url/i);
     });
 
     it('throw if there is no "calendars" field in the config file', function () {
       window.xConf.calendars = undefined;
-      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(/calendars/i);
+      expect(function () {
+        xDivTester.callWith(xdiv);
+      }).toThrowError(/calendars/i);
     });
 
     it('throw if the "calendars" field is not an array', function () {
       window.xConf.calendars = {};
-      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(/calendars/i);
+      expect(function () {
+        xDivTester.callWith(xdiv);
+      }).toThrowError(/calendars/i);
     });
 
     it('throw if the "calendars" array is empty', function () {
       window.xConf.calendars = [];
-      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(/calendars/i);
+      expect(function () {
+        xDivTester.callWith(xdiv);
+      }).toThrowError(/calendars/i);
     });
 
     it('throw if a calendar element doesn\'t have a uid', function () {
       window.xConf.calendars[0].uid = undefined;
-      expect(function () { xDivTester.callWith(xdiv); }).toThrowError(/uid/);
+      expect(function () {
+        xDivTester.callWith(xdiv);
+      }).toThrowError(/uid/);
     });
 
     it('not throw if a calendar element doesn\'t have a name', function () {
       window.xConf.calendars[0].name = undefined;
-      expect(function () { xDivTester.callWith(xdiv); }).not.toThrowError();
+      expect(function () {
+        xDivTester.callWith(xdiv);
+      }).not.toThrowError();
     });
 
     it('not throw if a calendar element doesn\'t have a description', function () {
       window.xConf.calendars[0].description = undefined;
-      expect(function () { xDivTester.callWith(xdiv); }).not.toThrowError();
+      expect(function () {
+        xDivTester.callWith(xdiv);
+      }).not.toThrowError();
     });
 
     it('not throw if a calendar element doesn\'t have click functions', function () {
       window.xConf.calendars[0].titleClick = undefined;
       window.xConf.calendars[0].dayHeaderClick = undefined;
       window.xConf.calendars[0].eventClick = undefined;
-      expect(function () { xDivTester.callWith(xdiv); }).not.toThrowError();
+      expect(function () {
+        xDivTester.callWith(xdiv);
+      }).not.toThrowError();
     });
 
   });
@@ -336,7 +360,7 @@ describe('The multi-calendar should', function () {
     beforeAll(function (done) {
       var newConfig = clone(demoConf);
       var spies = addClickSpies(newConfig);
-      eventClickSpy = spies [0];
+      eventClickSpy = spies[0];
       dayHeaderClickSpy = spies[1];
       titleClickSpy = spies[2];
 
@@ -478,30 +502,6 @@ describe('The multi-calendar should', function () {
     });
   });
 
-  function dateChangeChecks() {
-    describe('when changing the date', function () {
-      function dateChangeMatches() {
-        xit('have changed the main title');
-        xit('have changed the url hash');
-        xit('have changed the dates shown in the calendar');
-        xit('have changed the dates of all calendars to the same value');
-        xit('show the events happening in the new date');
-      }
-
-      describe('via the weekpicker', function () {
-        dateChangeMatches();
-      });
-
-      describe('via the left arrow', function () {
-        dateChangeMatches();
-      });
-
-      describe('via the right arrow', function () {
-        dateChangeMatches();
-      });
-    });
-  }
-
   describe('in a screen width of 1000px', function () {
     var xdiv;
     var configName = 'xConf5';
@@ -519,29 +519,153 @@ describe('The multi-calendar should', function () {
       done();
     });
 
-    it('show in the week mode', function () {
+    it('show in the week mode', function (done) {
       var calendars = getCalendars(xdiv);
       var daysShowing;
       calendars.forEach(function (cal) {
         daysShowing = cal.querySelectorAll('.fc-day');
         expect(daysShowing.length).toBeGreaterThan(4);
       });
+      done();
     });
 
-    it('show weekpicker date by weeks', function () {
+    it('show weekpicker date by weeks', function (done) {
       var weekpicker = xdiv.querySelector('input[type=week]');
       expect(weekpicker).toBeDefined();
+      done();
     });
 
-    it('show title in day range', function () {
+    it('show title in day range', function (done) {
       var title = xdiv.querySelector('.fc-toolbar h2');
       var titleText = title.innerText;
 
       //If there is a dash, then there is a date range.
       expect(titleText.indexOf('—') >= 0 || titleText.indexOf('-') >= 0).toBeTruthy();
+      done();
     });
 
-    dateChangeChecks();
+    describe('when changing the date', function () {
+      var oldCalDate;
+      var newCalDate;
+
+      function dateChangeMatches() {
+        it('have changed the main title', function () {
+          var title = xdiv.querySelector('.fc-toolbar h2').innerText;
+
+          //Check for the year
+          var year = newCalDate.format('YYYY');
+          expect(title.indexOf(year)).toBeGreaterThan(-1);
+
+          //Check for the day
+          var day = newCalDate.format('D');
+          expect(title.indexOf(day)).toBeGreaterThan(-1);
+
+          //Check for the month
+          var month = newCalDate.format('MMM').toLowerCase();
+          expect(title.toLowerCase().indexOf(month)).toBeGreaterThan(-1);
+        });
+
+        it('have changed the url hash', function () {
+          var newDateStr = newCalDate.format('YYYY-MM-DD');
+          expect(location.hash.indexOf(newDateStr)).toBeGreaterThan(-1);
+        });
+
+        it('have changed the dates shown in the calendar', function () {
+          var calendars = getCalendars(xdiv);
+          var newDateDayStr = newCalDate.format('D');
+          var dayHeaders;
+          var matchingHeaders = 0;
+          dayHeaders = xdiv.querySelectorAll('.fc-day-header');
+          dayHeaders = [].slice.call(dayHeaders);
+          dayHeaders.forEach(function (header) {
+            if (header.innerText.indexOf(newDateDayStr) >= 0) {
+              matchingHeaders++;
+            }
+          });
+
+          expect(matchingHeaders === calendars.length).toBe(true);
+        });
+
+        it('have changed the dates of all calendars to the same value', function () {
+          var calendars = getCalendars(xdiv);
+          var dayHeaders = xdiv.querySelectorAll('.fc-day-header');
+          var daysBeingDisplayed = dayHeaders.length / calendars.length;
+          var day;
+          var i;
+          var j;
+          for (i = 0; i < daysBeingDisplayed; i++) {
+            day = dayHeaders[i].innerText;
+            for (j = 0; j < calendars.length; j++) {
+              expect(calendars[j].querySelectorAll('.fc-day-header')[i].innerText).toEqual(day);
+            }
+          }
+        });
+
+        it('show the events happening in the new date', function (done) {
+          var calendars = getCalendars(xdiv);
+
+          calendars.forEach(function (cal) {
+            var events = cal.querySelectorAll('.fc-event-container');
+
+            //The demostration data has only one event this week.
+            expect(events.length).toEqual(1);
+            var eventText = events[0].innerText.toLowerCase();
+            expect(eventText.indexOf('following week')).toBeGreaterThan(-1);
+          });
+
+          done();
+        });
+      }
+
+      describe('via the weekpicker', function () {
+        beforeAll(function (done) {
+          xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
+            done(); //Make the specs async
+          });
+
+          var format;
+          var weekpicker = xdiv.querySelector('input[type=date]');
+          if (weekpicker) {
+            format = 'YYYY-MM-DD';
+            oldCalDate = moment(weekpicker.value, format);
+            newCalDate = moment(oldCalDate).add(7, 'days');
+            weekpicker.value = newCalDate.format(format);
+          } else {
+            weekpicker = xdiv.querySelector('input[type=week]');
+            oldCalDate = moment(weekpicker.value, 'YYYY-W');
+            newCalDate = moment(oldCalDate).add(7, 'days');
+            weekpicker.value = newCalDate.format('YYYY') + '-W' + newCalDate.format('W');
+          }
+
+          jasmine.Ajax.uninstall();
+          jasmine.Ajax.install();
+
+          var ev = new Event('change');
+          weekpicker.dispatchEvent(ev);
+
+          //Respond request
+          var request = jasmine.Ajax.requests.mostRecent();
+          request.respondWith({
+            status: 200,
+            responseText: JSON.stringify(demoData),
+          });
+        });
+
+        afterAll(function () {
+          jasmine.Ajax.uninstall();
+        });
+
+        dateChangeMatches();
+      });
+
+      describe('via the left arrow', function () {
+        dateChangeMatches();
+      });
+
+      describe('via the right arrow', function () {
+        dateChangeMatches();
+      });
+    });
   });
 
   describe('in a screen width of 600px', function () {
@@ -583,6 +707,131 @@ describe('The multi-calendar should', function () {
       expect(titleText.indexOf('—') >= 0 || titleText.indexOf('-') >= 0).toBeFalsy();
     });
 
-    dateChangeChecks();
+
+    describe('when changing the date', function () {
+      var oldCalDate;
+      var newCalDate;
+
+      function dateChangeMatches() {
+        it('have changed the main title', function () {
+          var title = xdiv.querySelector('.fc-toolbar h2').innerText;
+
+          //Check for the year
+          var year = newCalDate.format('YYYY');
+          expect(title.indexOf(year)).toBeGreaterThan(-1);
+
+          //Check for the day
+          var day = newCalDate.format('D');
+          expect(title.indexOf(day)).toBeGreaterThan(-1);
+
+          //Check for the month
+          var month = newCalDate.format('MMM').toLowerCase();
+          expect(title.toLowerCase().indexOf(month)).toBeGreaterThan(-1);
+        });
+
+        it('have changed the url hash', function () {
+          var newDateStr = newCalDate.format('YYYY-MM-DD');
+          expect(location.hash.indexOf(newDateStr)).toBeGreaterThan(-1);
+        });
+
+        it('have changed the dates shown in the calendar', function () {
+          var calendars = getCalendars(xdiv);
+
+          //We are expecting a weekday to be showing
+          var newDateDayStr = newCalDate.format('dddd').toLowerCase();
+          var dayHeaders;
+          var matchingHeaders = 0;
+          dayHeaders = xdiv.querySelectorAll('.fc-day-header');
+          dayHeaders = [].slice.call(dayHeaders);
+          dayHeaders.forEach(function (header) {
+            if (header.innerText.toLowerCase().indexOf(newDateDayStr) >= 0) {
+              matchingHeaders++;
+            }
+          });
+
+          expect(matchingHeaders === calendars.length).toBe(true);
+        });
+
+        it('have changed the dates of all calendars to the same value', function () {
+          var calendars = getCalendars(xdiv);
+          var dayHeaders = xdiv.querySelectorAll('.fc-day-header');
+          var daysBeingDisplayed = dayHeaders.length / calendars.length;
+          var day;
+          var i;
+          var j;
+          for (i = 0; i < daysBeingDisplayed; i++) {
+            day = dayHeaders[i].innerText;
+            for (j = 0; j < calendars.length; j++) {
+              expect(calendars[j].querySelectorAll('.fc-day-header')[i].innerText).toEqual(day);
+            }
+          }
+        });
+
+        it('show the events happening in the new date', function (done) {
+          var calendars = getCalendars(xdiv);
+
+          calendars.forEach(function (cal) {
+            var events = cal.querySelectorAll('.fc-event-container');
+
+            //The demostration data has only one event this week.
+            expect(events.length).toEqual(1);
+            var eventText = events[0].innerText.toLowerCase();
+            expect(eventText.indexOf('following week')).toBeGreaterThan(-1);
+          });
+
+          done();
+        });
+      }
+
+      describe('via the weekpicker', function () {
+        beforeAll(function (done) {
+          xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
+            done(); //Make the specs async
+          });
+
+          var format;
+          var weekpicker = xdiv.querySelector('input[type=date]');
+          if (weekpicker) {
+            format = 'YYYY-MM-DD';
+            oldCalDate = moment(weekpicker.value, format);
+            newCalDate = moment(oldCalDate).add(7, 'days');
+            weekpicker.value = newCalDate.format(format);
+          } else {
+            weekpicker = xdiv.querySelector('input[type=week]');
+            oldCalDate = moment(weekpicker.value, 'YYYY-W');
+            newCalDate = moment(oldCalDate).add(7, 'days');
+            weekpicker.value = newCalDate.format('YYYY') + '-W' + newCalDate.format('W');
+          }
+
+          jasmine.Ajax.uninstall();
+          jasmine.Ajax.install();
+
+          var ev = new Event('change');
+          weekpicker.dispatchEvent(ev);
+
+          //Respond request
+          var request = jasmine.Ajax.requests.mostRecent();
+          request.respondWith({
+            status: 200,
+            responseText: JSON.stringify(demoData),
+          });
+        });
+
+        afterAll(function () {
+          jasmine.Ajax.uninstall();
+        });
+
+        dateChangeMatches();
+      });
+
+      describe('via the left arrow', function () {
+        dateChangeMatches();
+      });
+
+      describe('via the right arrow', function () {
+        dateChangeMatches();
+      });
+    });
+
   });
 });
