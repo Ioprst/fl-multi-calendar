@@ -12506,6 +12506,10 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
     dateController.setDate(view.start);
   }
 
+  /**
+   * Track calendars and dispatch and appropriate event when all of them have
+   * finished their rendering.
+   */
   var handleAllRenderedEvent = (function () {
     var allUids = [];
     var renderedUids = [];
