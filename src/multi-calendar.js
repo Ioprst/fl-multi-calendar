@@ -258,7 +258,6 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
     document.addEventListener('multiCalendarViewChange', function (e) {
       var viewType = e.detail;
       $calendar.fullCalendar('changeView', viewType);
-      console.log('view changed');
     });
 
     // init fullCalendar obj

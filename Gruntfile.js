@@ -23,6 +23,10 @@ module.exports = function (grunt) {
         separator: ';',
       },
       js: {
+        options: {
+          banner: '(function () { \n ',
+          footer:' }());\n',
+        },
         src: [
           'bower_components/fullcalendar/dist/fullcalendar.js',
           'src/utils/**/*.js',
@@ -57,6 +61,23 @@ module.exports = function (grunt) {
     },
     phantomTester: {
       all: ['tests/**/*.html'],
+    },
+    jasmine: {
+      customTemplate: {
+        src: 'build/multi-calendar.js',
+        options: {
+          specs: 'tests/**/*spec.js',
+          vendor: [
+            'tests/phantomjs-polyfills/**/*.js',
+            'node_modules/jasmine-ajax/lib/mock-ajax.js',
+            'tests/functional/x-div-tester.js',
+            'bower_components/moment/moment.js',
+            'bower_components/jquery/dist/jquery.min.js',
+            'bower_components/jquery.cookie/jquery.cookie.js',
+            'bower_components/df-visible/jquery.visible.js'
+          ]
+        }
+      }
     }
   });
 
@@ -70,5 +91,5 @@ module.exports = function (grunt) {
 
   grunt.registerTask('default', ['jshint']);
   grunt.registerTask('build', ['jshint', 'concat', 'uglify']);
-  grunt.registerTask('test', ['phantomTester']);
+  grunt.registerTask('test', ['jshint', 'jasmine']);
 };

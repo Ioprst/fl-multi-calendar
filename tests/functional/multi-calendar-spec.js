@@ -1,4 +1,4 @@
-/*globals expect, xDivTester, jasmine, moment, afterAll, beforeAll */
+/*globals expect, xDivTester, jasmine, moment, afterAll, beforeAll,  */
 
 'use strict'; //jshint ignore:line
 
@@ -88,6 +88,16 @@ var demoConf = {
   ],
 };
 
+/**
+ * @function getCalendars
+ * @param {HTMLElement}
+ * @return {array} of HTMLElements
+ */
+function getCalendars(xdiv) {
+  var htmlCol = xdiv.querySelector('.calendars').children;
+  return [].slice.call(htmlCol);
+}
+
 describe('The multi-calendar should', function () {
   describe('when initialised', function () {
     var xdiv;
@@ -170,7 +180,7 @@ describe('The multi-calendar should', function () {
     jasmine.Ajax.install();
 
     //Initialise calendar
-    window.xConf2 = config;
+    window[configName] = config;
     var xdiv = document.createElement('x-div');
     xdiv.setAttribute('data-config', configName);
     document.body.appendChild(xdiv);
@@ -187,6 +197,7 @@ describe('The multi-calendar should', function () {
   }
 
   function teardownCalendar(el, configName) {
+    jasmine.Ajax.uninstall();
     el.remove();
     delete window[configName];
   }
@@ -195,29 +206,37 @@ describe('The multi-calendar should', function () {
     var xdiv;
     var configName = 'xConf2';
 
-    beforeAll(function () {
+    beforeAll(function (done) {
       window.innerWidth = 1000;
       var newConfig = clone(demoConf);
       xdiv = setupCalendar(newConfig, configName);
+      xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
+
+        done(); //Make the specs async
+      });
     });
 
-    afterAll(function () {
+    afterAll(function (done) {
       teardownCalendar(xdiv, configName);
+      done();
     });
 
-    it('as many calendars as elements in the "calendars" array in the config file', function () {
-      var NumberOfCalendars = xdiv.querySelector('.calendars').children.length;
-      expect(NumberOfCalendars).toEqual(demoConf.calendars.length);
-    });
+    it('as many calendars as elements in the "calendars" array in the config file',
+      function (done) {
+        var NumberOfCalendars = xdiv.querySelector('.calendars').children.length;
+        expect(NumberOfCalendars).toEqual(demoConf.calendars.length);
+        done();
+      });
 
-    it('a weekpicker', function () {
+    it('a weekpicker', function (done) {
       var weekpickers = xdiv.querySelectorAll('input');
       expect(weekpickers).toBeDefined();
       expect(weekpickers.length).toEqual(1);
+      done();
     });
 
-    it('calendar titles according to the config object', function () {
-      var calendars = xdiv.querySelector('.calendars').children;
+    it('calendar titles according to the config object', function (done) {
+      var calendars = getCalendars(xdiv);
 
       Array.prototype.forEach.call(calendars, function (cal, i) {
         var title;
@@ -226,36 +245,41 @@ describe('The multi-calendar should', function () {
         expect(title).toBeDefined();
         titleContent = title.innerText;
         expect(titleContent).toEqual(window.xConf2.calendars[i].name);
+        done();
       });
     });
 
-    it('calendar descriptions according to the config object', function () {
-      var calendars = xdiv.querySelector('.calendars').children;
+    it('calendar descriptions according to the config object', function (done) {
+      var calendars = getCalendars(xdiv);
       for (var i = 0; i < calendars.length; i++) {
         var description = calendars[i].querySelector('.fl-row-title em');
         expect(description).toBeDefined();
         var descriptionContent = description.innerText;
         expect(descriptionContent).toEqual(window.xConf2.calendars[i].description);
       }
+
+      done();
     });
 
-    it('control buttons', function () {
+    it('control buttons', function (done) {
       var dateControlBtns = xdiv.querySelectorAll('.fc-button-group button');
       var refreshBtn = xdiv.querySelectorAll('.fc-button-group');
       var btnsTotal = dateControlBtns.length + refreshBtn.length;
       expect(btnsTotal).toEqual(4);
+      done();
     });
 
-    it('a main header', function () {
+    it('a main header', function (done) {
       var mainHeaderElements = xdiv.querySelectorAll('.fc-toolbar h2');
       expect(mainHeaderElements.length).toEqual(1);
 
       //Check that there is text in there
       //At least 13 letters "Jan 1 - 1 2016"
       expect(mainHeaderElements[0].innerText.length).toBeGreaterThan(13);
+      done();
     });
 
-    it('the same date in the weekpicker and in the main header', function () {
+    it('the same date in the weekpicker and in the main header', function (done) {
       var mainHeader = xdiv.querySelector('.fc-toolbar h2');
       var mainTitle = mainHeader.innerText;
       var weekPicker = xdiv.querySelector('input');
@@ -264,15 +288,16 @@ describe('The multi-calendar should', function () {
       //match ["Mar 7 — 13 2016", "Mar ", "13 2016"] in "Mar 7 — 13 2016"
       var titleMatch = mainTitle.match(/(\w+\s)+\w+\s\—\s(\w+\s\w+)$/) || [];
       var titeDateStr = titleMatch[1] + titleMatch[2];
-      var titleDate = moment(titeDateStr);
+      var titleDate = moment(titeDateStr, 'MMM DD YYYY');
       var titleWeek = titleDate.format('YYYY') + '-W' + titleDate.format('WW');
 
       var weekPickerWeek = weekPicker.value;
       expect(titleWeek).toEqual(weekPickerWeek);
+      done();
     });
 
-    it('the loaded events that happen today', function () {
-      var calendars = xdiv.querySelector('.calendars').children;
+    it('the loaded events that happen today', function (done) {
+      var calendars = getCalendars(xdiv);
 
       Array.prototype.forEach.call(calendars, function (cal) {
         var events = cal.querySelectorAll('.fc-event-container');
@@ -282,27 +307,59 @@ describe('The multi-calendar should', function () {
         var eventText = events[0].innerText.toLowerCase();
         expect(eventText.indexOf('today')).toBeGreaterThan(-1);
       });
+
+      done();
     });
   });
 
   describe('fire config click event when clicking on', function () {
-    //Create config object
-    var newConfig = clone(demoConf);
+    var xdiv;
+    var configName = 'xConf3';
+    var eventClickSpy;
+    var dayHeaderClickSpy;
+    var titleClickSpy;
+    beforeAll(function (done) {
+      var newConfig = clone(demoConf);
 
-    //Create spies and add them to config obj.
-    var eventClickSpy = jasmine.createSpy();
-    var dayHeaderClickSpy = jasmine.createSpy();
-    var titleClickSpy = jasmine.createSpy();
+      //Create spies and add them to config obj.
+      eventClickSpy = jasmine.createSpy();
+      dayHeaderClickSpy = jasmine.createSpy();
+      titleClickSpy = jasmine.createSpy();
 
-    newConfig.calendars.forEach(function (cal) {
-      cal.eventClick = eventClickSpy;
-      cal.dayHeaderClick = dayHeaderClickSpy;
-      cal.titleClick = titleClickSpy;
+      newConfig.calendars.forEach(function (cal) {
+        cal.eventClick = eventClickSpy;
+        cal.dayHeaderClick = dayHeaderClickSpy;
+        cal.titleClick = titleClickSpy;
+      });
+
+      xdiv = setupCalendar(newConfig, configName);
+      xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
+        done(); //Make the specs async
+      });
     });
 
-    // var xdiv = setupAndTeardownMultiCalendar(newConfig);
+    afterAll(function (done) {
+      teardownCalendar(xdiv, configName);
+      done();
+    });
 
-    xit('day headers');
+    it('day headers', function (done) {
+      var calendars = getCalendars(xdiv);
+      var dayHeaders;
+      var clickCounter = 0;
+      calendars.forEach(function (cal) {
+        dayHeaders = cal.querySelectorAll('.fc-day-header');
+        dayHeaders = [].slice.call(dayHeaders); //Convert HTMLCollection to array
+        dayHeaders.forEach(function (header) {
+          header.click();
+          clickCounter++;
+        });
+      });
+
+      expect(dayHeaderClickSpy).toHaveBeenCalledTimes(clickCounter);
+      done();
+    });
+
     xit('events');
     xit('titles');
     xit('descriptions');

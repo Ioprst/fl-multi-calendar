@@ -1,4 +1,5 @@
-/*!
+(function () { 
+ /*!
  * FullCalendar v2.6.1
  * Docs & License: http://fullcalendar.io/
  * (c) 2015 Adam Shaw
@@ -12620,7 +12621,6 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
     document.addEventListener('multiCalendarViewChange', function (e) {
       var viewType = e.detail;
       $calendar.fullCalendar('changeView', viewType);
-      console.log('view changed');
     });
 
     // init fullCalendar obj
@@ -13055,3 +13055,4 @@ xController(function (xDivEl) {
   config.targetEl = xDivEl;
   new MultiCalendar(config);
 });
+ }());
