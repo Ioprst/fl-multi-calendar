@@ -190,10 +190,17 @@ function whenChangingDates(globals) {
     describe('via the weekpicker', function () {
       beforeAll(function (done) {
         var xdiv = globals.xdiv;
-        xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
+        function listener() {
           done(); //Make the specs async
-        });
+          xdiv.removeEventListener('multiCalendarAllEventsRendered', listener);
+        };
 
+        xdiv.addEventListener('multiCalendarAllEventsRendered', listener);
+
+        jasmine.Ajax.uninstall();
+        jasmine.Ajax.install();
+
+        // Change date in weekpicker
         var format;
         var weekpicker = xdiv.querySelector('input[type=date]');
         if (weekpicker) {
@@ -208,9 +215,7 @@ function whenChangingDates(globals) {
           weekpicker.value = globals.newCalDate.format('YYYY') + '-W' + globals.newCalDate.format('W');
         }
 
-        jasmine.Ajax.uninstall();
-        jasmine.Ajax.install();
-
+        // Emmit event saying the date was changed
         var ev = new Event('change');
         weekpicker.dispatchEvent(ev);
 
@@ -230,7 +235,32 @@ function whenChangingDates(globals) {
     });
 
     describe('via the left arrow', function () {
-      //TODO: ceck if this is really checking any change.
+      //TODO: Fix this test and the next one.
+      // beforeAll(function (done) {
+      //   var xdiv = globals.xdiv;
+      //   xdiv.addEventListener('multiCalendarAllEventsRendered', function () {
+      //     done(); //Make the specs async
+      //   });
+      //
+      //   jasmine.Ajax.uninstall();
+      //   jasmine.Ajax.install();
+      //
+      //
+      //   // Click arrow
+      //   var leftArrow = xdiv.querySelector('button.fc-prev-button');
+      //   leftArrow.click();
+      //
+      //   //Respond request
+      //   var request = jasmine.Ajax.requests.mostRecent();
+      //   request.respondWith({
+      //     status: 200,
+      //     responseText: JSON.stringify(demoData),
+      //   });
+      // });
+      //
+      // afterAll(function () {
+      //   jasmine.Ajax.uninstall();
+      // });
       dateChangeMatches(globals);
     });
 

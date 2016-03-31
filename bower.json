@@ -22,7 +22,7 @@
     "tests"
   ],
   "dependencies": {
-    "x-div": "~1.0.2",
+    "x-div": "~1.0.3",
     "fullcalendar": "~2.6.1",
     "bootstrap": "~3.3.6",
     "webcomponentsjs": "~0.7.21",
