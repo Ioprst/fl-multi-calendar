@@ -350,6 +350,7 @@ describe('The multi-calendar should', function () {
   //Prepares an x-div for setup and teardown within a suite.
   function setupCalendar(config, configName) {
     //Begin to listen for http calls using the XMLHttpRequest function
+    jasmine.Ajax.uninstall();
     jasmine.Ajax.install();
 
     //Initialise calendar
@@ -458,9 +459,13 @@ describe('The multi-calendar should', function () {
       var weekPicker = xdiv.querySelector('input');
 
       //Get date from main header
-      //match ["Mar 7 — 13 2016", "Mar ", "13 2016"] in "Mar 7 — 13 2016"
-      var titleMatch = mainTitle.match(/(\w+\s)+\w+\s\—\s(\w+\s\w+)$/) || [];
-      var titeDateStr = titleMatch[1] + titleMatch[2];
+      //match ["Mar 28 — Apr 3 2016", "Mar ", "Apr"] in "Mar 28 — Apr 2016"
+      var month = mainTitle.match(/[a-zA-Z]{3}/g) || [];
+
+      //match ["Mar 28 — Apr 3 2016", "3 2016"] in "Mar 28 — Apr 2016"
+      var dayAndYear = mainTitle.match(/[0-9]+\s[0-9]{2,4}$/) || [];
+
+      var titeDateStr = month.pop() + ' ' + dayAndYear.pop();
       var titleDate = moment(titeDateStr, 'MMM DD YYYY');
       var titleWeek = titleDate.format('YYYY') + '-W' + titleDate.format('WW');
 
