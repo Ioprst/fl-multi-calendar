@@ -230,20 +230,13 @@ function whenChangingDates(globals) {
     });
 
     describe('via the left arrow', function () {
-      jasmine.Ajax.uninstall();
-      jasmine.Ajax.install();
-
-      //Respond request
-      var request = jasmine.Ajax.requests.mostRecent();
-      request.respondWith({
-        status: 200,
-        responseText: JSON.stringify(demoData),
-      });
-      dateChangeMatches(dateHolder);
+      //TODO: ceck if this is really checking any change.
+      dateChangeMatches(globals);
     });
 
     describe('via the right arrow', function () {
-      dateChangeMatches(dateHolder);
+      //TODO: ceck if this is really checking any change.
+      dateChangeMatches(globals);
     });
   });
 
