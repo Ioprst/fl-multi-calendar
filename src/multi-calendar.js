@@ -459,6 +459,7 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
     //Create wrapping structure
     var container = document.createElement('div');
     container.classList.add('box');
+    container.classList.add('fl-multi-calendar');
     frag.appendChild(container);
 
     var boxTitle = document.createElement('div');
@@ -485,10 +486,9 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
     var cal;
     var wrappingUserRow;
     var rowTitle;
-    var titleSpan;
     var spanLink;
     var linkIcon;
-    var spanEm;
+    var spanDescription;
     var i;
     for (i = 0; i < calendarConfig.length; i++) {
       cal = calendarConfig[i];
@@ -508,7 +508,6 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
         rowTitleContainer.classList.add('col-md-2');
 
         var weekPickerContainer = document.createElement('div');
-        weekPickerContainer.classList.add('row');
         weekPickerContainer.classList.add('week');
         rowTitleContainer.appendChild(weekPickerContainer);
 
@@ -520,6 +519,7 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
         weekPickerContainer.appendChild(weekPicker);
 
         rowTitle.classList.add('row');
+        rowTitle.classList.add('col-md-12');
         rowTitleContainer.appendChild(rowTitle);
 
         wrappingUserRow.appendChild(rowTitleContainer);
@@ -528,11 +528,8 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
         wrappingUserRow.appendChild(rowTitle);
       }
 
-      titleSpan = document.createElement('span');
-      rowTitle.appendChild(titleSpan);
-
       spanLink = document.createElement('a');
-      titleSpan.appendChild(spanLink);
+      rowTitle.appendChild(spanLink);
 
       if (typeof cal.uid === 'string') {
         linkIcon = document.createElement('i');
@@ -541,10 +538,10 @@ function MultiCalendar(configurationObj) { //jshint ignore:line
         spanLink.appendChild(linkIcon);
 
         if (cal.description) {
-          // titleSpan.appendChild(document.createElement('br'));
-          spanEm = document.createElement('em');
-          spanEm.innerText = cal.description;
-          titleSpan.appendChild(spanEm);
+          spanDescription = document.createElement('span');
+          spanDescription.className = 'description';
+          spanDescription.innerText = cal.description;
+          rowTitle.appendChild(spanDescription);
         }
       }
 

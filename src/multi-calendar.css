@@ -12,6 +12,11 @@
   font-style: normal;
 }
 
+.box.fl-multi-calendar .box-content {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .fc-toolbar [data-icon]:before {
   font-family: "fl-calendar-buttons" !important;
   content: attr(data-icon);
@@ -95,19 +100,23 @@
   margin-bottom: 5px;
 }
 .fl-row-title {
-  text-align: center;
-  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .fl-row-title a {
   font-weight: bold;
+  font-size: 1.1em;
   color: #222;
   text-decoration: none;
 }
-.fl-row-title a,
-.fl-row-title em {
-    margin: 0 5px;
-    display: inline-block;
+.fl-row-title .description {
+  padding-left: .55em;
+}
+
+.fl-row-title .fa {
+  margin-right: .15em;
 }
 
 .fc-time{
@@ -157,7 +166,6 @@
   max-height: 30px;
   min-height: 30px;
   border-radius: 0;
-  border: 1px solid;
   border-color: rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25);
 }
 
