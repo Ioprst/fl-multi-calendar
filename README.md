@@ -1,8 +1,11 @@
 # fl-multi-calendar
 [![Build Status](https://travis-ci.org/fourlabsldn/fl-multi-calendar.svg?branch=master)](https://travis-ci.org/fourlabsldn/fl-multi-calendar)
 
-Visualise multiple people's schedules in one page
+Multiple instances of [FullCalendar](https://github.com/fullcalendar/fullcalendar), with one menu and kept in sync.
 
+## Demo
+
+To view the demo, follow the instructions in the section [build tools](#build-tools).
 
 ## Usage
 
@@ -10,12 +13,12 @@ fl-multi-calendar depends on [x-div](https://github.com/fourlabsldn/x-div) which
 
 The following example loads fl-multi-calendar from `/build/multi-calendar.js` and initialises with the configuration object `myConfig`. The referenced configuration object must be in the global namespace.
 
-**HTML**
+#### HTML
 ``` html
 <x-div data-controller="/build/multi-calendar" data-config="myConfig"></x-div>
 ```
 
-**JavaScript**
+#### JavaScript
 ``` javascript
 var myConfig = {
   loadUrl: 'http://localhost:5000',
@@ -69,34 +72,33 @@ npm install fl-multi-calendar --save
 
 ## Build tools
 
-Before building fl-multi-calendar from source run:
+Before you can use the demo or buildfl-multi-calendar from source, install the build tools by running:
 
 ```bash
 npm install
 bower install
 ```
 
-### Build
+#### Build
 Builds from source
 ```
 npm run build
 ```
 
-### Demo
+#### Demo
 Runs a server and opens the demo page in your browser.
 ```
 npm run demo
 ```
 
-### Dev
+#### Dev
 Runs build, demo and watches changes to build again.
 ```
 npm run dev
 ```
 
-### Test
+#### Test
 Runs test suite.
 ```
 npm run test
 ```
-
