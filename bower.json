@@ -1,6 +1,6 @@
 {
   "name": "fl-multi-calendar",
-  "description": "Visualise multiple people's calendars",
+  "description": "Multiple, synced fullcalendar.js instances",
   "main": "dist/calendar.js",
   "authors": [
     "lazamar @ FourLabs"

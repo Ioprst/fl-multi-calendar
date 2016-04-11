@@ -4,17 +4,15 @@
 Visualise multiple people's schedules in one page
 
 
-## Configuration
-The component is initialised with a configuration object which will contain the
-all the main callbacks and calendar subjects. The configuration object should
-be in the global namespace. Tell [x-div](https://github.com/fourlabsldn/x-div)
-to use it with the `data-config` attribute.
+## Usage
 
-Here is how it could look like:
+fl-multi-calendar depends on [x-div](https://github.com/fourlabsldn/x-div) which is a Web Component. Check the [browser support](http://caniuse.com/#search=Custom%20Elements) if you are taking it to production. You may need to use a [polyfill](http://webcomponents.org/polyfills/).
 
-**html**
+The following example loads fl-multi-calendar from `/build/multi-calendar.js` and initialises with the configuration object `myConfig`. The referenced configuration object must be in the global namespace.
+
+**HTML**
 ``` html
-<x-div data-controller="/path/to/multi-calendar" data-config="myConfig"></x-div>
+<x-div data-controller="/build/multi-calendar" data-config="myConfig"></x-div>
 ```
 
 **JavaScript**
@@ -48,7 +46,6 @@ var myConfig = {
     eventClick: function () {},
   }, ],
 };
-
 ```
 
 ## Events
@@ -57,18 +54,40 @@ var myConfig = {
 
 The calendars also emit all events from `fullCalendar`.
 
-## Tasks
+## Installation
+**Bower**
+
+```bash
+bower install fl-multi-calendar --save
+```
+
+**NPM**
+
+```bash
+npm install fl-multi-calendar --save
+```
+
+## Build tools
+
+Before building fl-multi-calendar from source run:
+
+```bash
+npm install
+bower install
+```
+
+### Build
+Builds from source
+```
+npm run build
+```
 
 ### Demo
-Will run a server and open the demo page in the browser
+Runs a server and opens the demo page in your browser.
 ```
 npm run demo
 ```
 
-### Build
-```
-npm run build
-```
 ### Dev
 Runs build, demo and watches changes to build again.
 ```
@@ -76,6 +95,8 @@ npm run dev
 ```
 
 ### Test
+Runs test suite.
 ```
 npm run test
 ```
+

@@ -1,7 +1,7 @@
 {
   "name": "fl-multi-calendar",
-  "version": "0.0.1",
-  "description": "Visualise multiple people's calendars",
+  "version": "1.0.2",
+  "description": "Multiple, synced fullcalendar.js instances",
   "main": "dist/calendar.js",
   "scripts": {
     "build": "grunt build",
@@ -41,3 +41,4 @@
   },
   "dependencies": {}
 }
+
